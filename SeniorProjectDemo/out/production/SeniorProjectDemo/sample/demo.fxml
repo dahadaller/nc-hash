@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Rectangle2D?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<BorderPane xmlns="http://javafx.com/javafx/8.0.172-ea" xmlns:fx="http://javafx.com/fxml/1">
+    <top>
+        <BorderPane styleClass="header-section">
+            <left>
+                <Label id="header-text" text="FaceBook Hash!" />
+            </left>
+            <right>
+                <Button id="account" fx:id="accountBTN" onAction="#handleAccountClick" text="Jonathan">
+                    <graphic>
+                        <ImageView fitHeight="24" fitWidth="24" pickOnBounds="true" preserveRatio="true">
+                            <image>
+                                <Image url="@javafx_account_example.png" />
+                            </image>
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </right>
+        </BorderPane>
+    </top>
+    <left>
+        <VBox styleClass="sidebar-section">
+            <children>
+
+            </children>
+        </VBox>
+    </left>
+    <center>
+        <VBox fx:id="vbox" alignment="CENTER" styleClass="content-section" BorderPane.alignment="CENTER">
+            <children>
+                    <ImageView id="image-holder" fx:id="image_holder" fitHeight="300.0" fitWidth="300.0" onDragDropped="#handleDrop" onDragOver="#handleDragOver" VBox.vgrow="ALWAYS">
+                        <image>
+                            <Image url="@javafx_account_example.png" />
+                        </image>
+               <viewport>
+                  <Rectangle2D />
+               </viewport>
+                    </ImageView>
+                <Button id="hashBTN" fx:id="hashBTN" nodeOrientation="INHERIT" onAction="#handleHash" text="Hash Image" visible="false" />
+            </children>
+        </VBox>
+    </center>
+    <bottom>
+        <HBox id="footer-section">
+            <children>
+                <Label text="Image Hashing v 0.1" />
+            </children>
+        </HBox>
+    </bottom>
+</BorderPane>
