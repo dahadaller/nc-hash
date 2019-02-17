@@ -75,7 +75,7 @@ The `@FXML` tells JavaFX that this object is created within the `FXML` file, not
 
 There is another way of setting the fx:id. Go into scene builder, click on the button you want to name. Click on "code", and inside fx:id type in whatever name you want.
 
-![figure 1.0 setting up fx id](C:\Users\jonat\Documents\figure 1.0 setting up fx id.PNG)
+![scene builder example](C:\Users\Jonathan\IdeaProjects\NC-Hash\documentation\scene builder example.PNG)
 
 ​    
 
@@ -88,7 +88,7 @@ How about the action of the button. There are two ways that I know of.
     }
 ```
 
-If you look at the image of the scene builder above inside the OnAction you can write down the name of the function you wrote inside DemoController.java.
+If you look at the image above below "fx:id" is "OnAction". you can write down the name of the function you wrote inside DemoController.java.
 
 ```xml
                 <Button id="account" fx:id="accountBTN" onAction="#handleAccountClick" text="Jonathan">
@@ -126,7 +126,11 @@ Any function pertaining to the fxml file needs the annotation @FXML.
 
 ​	There is a third way of giving the account button a function. You can create an event handlers. For example if for some reason you don't feel like using the scene builder of demo.fxml file to label the OnAction fucntion. You can write an event handler for that button and give it an anonymous inner class and define the button's function is inside the handle function. If you were to add this code to the demo and click on account. It will display "This function was written inside a event handler.". Setting event handlers for GUI objects is something I haven't done much. I mainly use the fxml file or scene builder.
 
-​	
+### Scene Builder
+
+​	Scene builder is a tool that allows you to drag and drop GUI items. You can adjust just about everything  in scene builder. Everything you do in scene builder affects the fxml file and vice versa. So you can use whatever your comfortable with. I like to switch between fxml and scene builder to learn how fxml is written. 
+
+
 
 
 
