@@ -19,8 +19,8 @@
 #### What's required
 
 - Download and install the newest version of Intellij. https://www.jetbrains.com/idea/
-
 - Download and install Java 11 JDK. Link is here, https://www.oracle.com/technetwork/java/javase/downloads/jdk11-downloads-5066655.html
+- After you install Java you have to set up the Path for Windows. Click on this link https://www.tutorialspoint.com/javafx/javafx_environment.htm and go to "Setting up the Path for Windows." I didn't do this to run the demo. But it will save you trouble in the future. 
 - Download JavaFX 11 SDK. https://gluonhq.com/products/javafx/. Unzip the contents to anywhere you like. I placed my in C:\Program Files\Java.
 
 #### Running the Demo
