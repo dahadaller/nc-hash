@@ -4,7 +4,7 @@
 
 - A good place to start. https://www.tutorialspoint.com/javafx/
 
-- I used this tutorial for software engineering project which was written entirely in Java and used JavaFX. https://code.makery.ch/library/javafx-tutorial/
+- I used two tutorial for the software engineering project which was written entirely in Java. The first one can be found here https://code.makery.ch/library/javafx-tutorial/. The second one which contains information on database operations can be found here https://www.swtestacademy.com/database-operations-javafx/?fbclid=IwAR0hVugD9tb_ZOumM6E9e3j0kSKbHK6pDHALinPun4wlBRQtW74IRZKvHZY.
 
 - The GUI in the demo was based on this application. https://www.callicoder.com/javafx-css-tutorial/. This application was written by callicoder. Callicoder's github link is here https://github.com/callicoder/javafx-examples. He has other examples if you're interested. 
 
