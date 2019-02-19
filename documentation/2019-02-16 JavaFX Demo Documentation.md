@@ -75,7 +75,7 @@ The `@FXML` tells JavaFX that this object is created within the `FXML` file, not
 
 There is another way of setting the fx:id. Go into scene builder, click on the button you want to name. Click on "code", and inside fx:id type in whatever name you want.
 
-![scene builder example](C:\Users\Jonathan\IdeaProjects\NC-Hash\documentation\scene builder example.PNG)
+![scene builder example](./images/scene builder example.PNG)
 
 ​    
 
