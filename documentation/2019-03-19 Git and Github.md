@@ -9,9 +9,9 @@ When we start to diverge from working in the same area, we can use the [Feature 
 
 ## Fixing Merge Conflicts
 
-Preliminary reading: It might help to o through the article, [How to undo (almost) anything with Git](https://github.blog/2015-06-08-how-to-undo-almost-anything-with-git/) before moving on.	
+Preliminary reading: It might help to go through the article, [How to undo (almost) anything with Git](https://github.blog/2015-06-08-how-to-undo-almost-anything-with-git/) , before moving on.	
 
-**Potential Merge Conflicts:** you pull before you code, there's only one type of merge conflict that may arise. Say Bon and David both pull at time A. They work on the same file, but David manages to push first at time B. Then, when Bon tries to push at time C, he'll be prevented from doing so. Bon has a merge conflict; git won't allow him to push or pull from the master until it is resolved.![](./images/merge_conflict.png)
+**Potential Merge Conflicts:** If, you pull before you code, there's only one type of merge conflict that may arise. Say Bon and David both pull at time A. They work on the same file, but David manages to push first at time B. Then, when Bon tries to push at time C, he'll be prevented from doing so. Bon has a merge conflict; git won't allow him to push or pull from the master until it is resolved.![](./images/merge_conflict.png)
 
 
 
