@@ -38,7 +38,7 @@
 
 # What are these folders and what do they? 
 
-- First don't commit the .idea folder and the. We only need the out folder and src folder. If you do commit them its ok. Just delete it.  
+- First don't commit the .idea folder and the iml at the root directory. We only need the out folder and src folder. If you do commit them its ok. Just delete it, its no biggie. 
 
 - Here's what I found off google.
 
