@@ -13,6 +13,7 @@ public class Controller implements Initializable {
 
     public void loginButtonClicked() {
         System.out.println("User logged in...");
+        //Test to see if primary stage aka debugStage closes.
         debugStage.close();
     }
 

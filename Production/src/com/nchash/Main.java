@@ -2,9 +2,7 @@ package com.nchash;
 
 import com.nchash.controller.Controller;
 import javafx.application.Application;
-import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.layout.BorderPane;
 import javafx.stage.Stage;
@@ -29,11 +27,12 @@ public class Main extends Application {
     public void showDebugScreen(){
         try{
             FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(Main.class.getResource("view/sample.fxml"));
+            loader.setLocation(Main.class.getResource("view/Sample.fxml"));
             BorderPane debugScreenView = (BorderPane)loader.load();
 
             Scene scene = new Scene(debugScreenView);
             Controller controller = loader.getController();
+            //Gives us a reference to the primary stage.
             controller.setDebugStage(primaryStage);
             primaryStage.setScene(scene);
             primaryStage.show();
