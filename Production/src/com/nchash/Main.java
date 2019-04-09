@@ -28,14 +28,17 @@ public class Main extends Application {
         try{
             FXMLLoader loader = new FXMLLoader();
             loader.setLocation(Main.class.getResource("view/Sample.fxml"));
-            BorderPane debugScreenView = (BorderPane)loader.load();
 
+            Controller controller = new Controller();
+            loader.setController(controller);
+
+            BorderPane debugScreenView = (BorderPane)loader.load();
             Scene scene = new Scene(debugScreenView);
-            Controller controller = loader.getController();
-            //Gives us a reference to the primary stage.
+            //Gives a reference to the primary stage.
             controller.setDebugStage(primaryStage);
             primaryStage.setScene(scene);
             primaryStage.show();
+
         }catch (Exception e){
             e.printStackTrace();
         }
