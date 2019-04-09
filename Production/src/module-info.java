@@ -1,6 +1,7 @@
-module NC.Hash {
+module Production {
     requires javafx.controls;
     requires javafx.fxml;
 
-    opens sample;
+    opens com.nchash;
+    opens com.nchash.controller;
 }

@@ -1,4 +1,4 @@
-package sample;
+package com.nchash.controller;
 
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
