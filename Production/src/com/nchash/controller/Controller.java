@@ -19,6 +19,7 @@ public class Controller implements Initializable {
         debugStage.close();
     }
 
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         System.out.println("Loading use data...");

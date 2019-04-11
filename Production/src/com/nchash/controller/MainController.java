@@ -8,6 +8,10 @@ public class MainController {
     @FXML
     private ImageView mainImageView;
 
+    /**
+     * Initializes the controller class. This method is automatically called
+     * after the fxml file has been loaded.
+     */
     @FXML
     public void initialize(){
 //        mainImageView.setImage(new Image("./images/drag_and_drop_image.gif"));
