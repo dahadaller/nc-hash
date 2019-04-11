@@ -1,6 +1,7 @@
 package com.nchash;
 
 import com.nchash.controller.Controller;
+import com.nchash.controller.MainController;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
@@ -18,11 +19,26 @@ public class Main extends Application {
     @Override
     public void start(Stage primaryStage) throws Exception{
         this.primaryStage = primaryStage;
-        showDebugScreen();
+        showMainApplication();
+    }
+
+    public void showMainApplication(){
+        try{
+            FXMLLoader loader = new FXMLLoader();
+            loader.setLocation(Main.class.getResource("view/MainView.fxml"));
+            MainController mainController = new MainController();
+            loader.setController(mainController);
+            Scene scene = new Scene(loader.load());
+            primaryStage.setScene(scene);
+            primaryStage.setTitle("NC-Hash Application");
+            primaryStage.show();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
     }
 
     /**
-     * Shows Bon's code which is the debug window
+     * Shows Bon's code. This is the debug window
      */
     public void showDebugScreen(){
         try{
@@ -35,7 +51,7 @@ public class Main extends Application {
             BorderPane debugScreenView = (BorderPane)loader.load();
             Scene scene = new Scene(debugScreenView);
             //Gives a reference to the primary stage.
-            controller.setDebugStage(primaryStage);
+            controller.setMainApp(this);
             primaryStage.setScene(scene);
             primaryStage.show();
 
@@ -45,7 +61,7 @@ public class Main extends Application {
 
     }
 
-
-
-
+    public Stage getPrimaryStage() {
+        return primaryStage;
+    }
 }

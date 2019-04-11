@@ -1,5 +1,6 @@
 package com.nchash.controller;
 
+import com.nchash.Main;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.stage.Stage;
@@ -10,6 +11,7 @@ import java.util.ResourceBundle;
 public class Controller implements Initializable {
 
     private Stage debugStage;
+    private Main mainApp;
 
     public void loginButtonClicked() {
         System.out.println("User logged in...");
@@ -22,7 +24,9 @@ public class Controller implements Initializable {
         System.out.println("Loading use data...");
     }
 
-    public void setDebugStage(Stage debugStage) {
-        this.debugStage = debugStage;
+
+    public void setMainApp(Main mainApp) {
+        this.mainApp = mainApp;
+        this.debugStage = mainApp.getPrimaryStage();
     }
 }
