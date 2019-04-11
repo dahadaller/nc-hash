@@ -14,7 +14,7 @@ public class MainController {
      */
     @FXML
     public void initialize(){
-//        mainImageView.setImage(new Image("./images/drag_and_drop_image.gif"));
+      //  mainImageView.setImage(new Image("./images/drag_and_drop_image.gif"));
 
     }
 
