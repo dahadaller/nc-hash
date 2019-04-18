@@ -32,7 +32,7 @@ public class MainController {
      * This function opens the file explorer window. The file selected must be an image.
      * Once the image is selected the default image will be set to the selected image.
      */
-    public void handleUploadBtn(ActionEvent event){
+    public void handleUploadBtn(){
         String pathToFile = openFileExplorer();
         if(pathToFile != null){
             setDefaultUploadImage(pathToFile);
