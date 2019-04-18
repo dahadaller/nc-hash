@@ -29,7 +29,8 @@ public class MainController {
     }
 
     /**
-     * This function opens the file explorer window. The file selected must be an image
+     * This function opens the file explorer window. The file selected must be an image.
+     * Once the image is selected the default image will be set to the selected image.
      */
     public void handleUploadBtn(ActionEvent event){
         String pathToFile = openFileExplorer();
@@ -43,7 +44,7 @@ public class MainController {
 
     /**
      * This function will open the file explorer. The user will pick a file
-     * and the path of the file will be returned else returns null.
+     * and the path of the file will be returned else it'll returns null.
      * @return path to file String. Null if no file is selected.
      */
     private String openFileExplorer(){
@@ -51,8 +52,7 @@ public class MainController {
         fileChooser.setTitle("Open File Explorer");
         File imageFile = fileChooser.showOpenDialog(null);
         if(imageFile != null){
-            StringBuilder pathToFile = new StringBuilder();
-            pathToFile.append("file:");
+            StringBuilder pathToFile = new StringBuilder("file:");
             pathToFile.append(imageFile.getAbsolutePath());
             return pathToFile.toString();
         }
@@ -60,7 +60,7 @@ public class MainController {
     }
 
     /**
-     * This function will handle the drag file feature.
+     * This function will handle the drag over file feature.
      * If the file is accepted the handle drop function will be called else
      * the previous image will remain.
      * @param event
@@ -73,8 +73,8 @@ public class MainController {
     }
 
     /**
-     * Once the file has been accepted after the drag function is called.
-     * This function will be called and returns a image.
+     * Once the handleDragOver() is finished this function will
+     * set the default image to what was drag and dropped.
      * @param event
      * @return A string containing the path to file.
      * @throws FileNotFoundException
@@ -83,16 +83,16 @@ public class MainController {
     private void handleDrop(DragEvent event){
         try {
             String pathToFile = getPathToImageDragAndDrop(event);
-            System.out.println(pathToFile);
             setDefaultUploadImage(pathToFile);
         }catch (Exception e){
-            e.getCause().printStackTrace();
+            e.printStackTrace();
         }
     }
 
     /**
      * This function takes in an DragEvent object and returns a String
-     * containing the path to the image.
+     * containing the path to the image. As of right now it only returns 1 file.
+     * The function can be changed to return multiple files in the DragEvent.
      * @param event
      * @return
      * @throws FileNotFoundException
