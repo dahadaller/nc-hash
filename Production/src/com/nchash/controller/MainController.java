@@ -100,6 +100,7 @@ public class MainController {
     private String getPathToImageDragAndDrop(DragEvent event)throws FileNotFoundException{
         StringBuilder pathToImage = new StringBuilder("File:");
         pathToImage.append(event.getDragboard().getFiles().get(0));
+        event.consume();
         return pathToImage.toString();
     }
 
