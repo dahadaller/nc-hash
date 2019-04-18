@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.geometry.*?>
 <?import java.lang.*?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
@@ -12,13 +13,16 @@
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" stylesheets="@bootstrapfx.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
    <top>
-      <Label styleClass="bg-primary" stylesheets="@bootstrapfx.css" text="NC-Hash Application" BorderPane.alignment="CENTER" />
+      <Label alignment="CENTER" styleClass="bg-primary" stylesheets="@bootstrapfx.css" text="NC-Hash Application" BorderPane.alignment="CENTER">
+         <BorderPane.margin>
+            <Insets />
+         </BorderPane.margin></Label>
    </top>
    <center>
       <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" stylesheets="@bootstrapfx.css" BorderPane.alignment="CENTER">
          <children>
             <ImageView fx:id="mainImageView" fitHeight="150.0" fitWidth="200.0" pickOnBounds="true" preserveRatio="true" />
-            <Button fx:id="upLoadPhotoBtn" mnemonicParsing="false" text="Upload Photo" />
+            <Button fx:id="upLoadPhotoBtn" mnemonicParsing="false" styleClass="bg-primary" text="Upload Photo" />
          </children>
       </VBox>
    </center>
