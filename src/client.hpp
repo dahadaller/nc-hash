@@ -16,7 +16,7 @@
 
     For any questions, you may contact NCP-Hash Group via opening an issue on https://github.com/ncp-hash/public-phash/issues
 */
-
+#define cimg_display 0
 #include "CImg.h"
 #include <cstdlib>
 #include <math.h>
@@ -92,26 +92,26 @@ int get_min(CImg<int> CDF) {
     return min;
 }
 
-CImg<int> hist_equl(CImg<float> img) {
-    CImg<int> cdf_matrix = get_cdf_matrix(img);
-    int cdf_min = get_min(cdf_matrix);
-    int width = cdf_matrix.width();
-    int height = cdf_matrix.height();
+// CImg<int> hist_equl(CImg<float> img) {
+//     CImg<int> cdf_matrix = get_cdf_matrix(img);
+//     int cdf_min = get_min(cdf_matrix);
+//     int width = cdf_matrix.width();
+//     int height = cdf_matrix.height();
 
-    CImg<int> res(width, height, 1, 1, 0);
+//     CImg<int> res(width, height, 1, 1, 0);
 
-    for (int i = 0; i < width; ++i) {
-        for (int j = 0; j < height; ++j) {
-            int cdf_v = cdf_matrix(i, j);
-            float a = (float) ((cdf_v - cdf_min)*255);
-            float b = (float) ((width*height-cdf_min));
+//     for (int i = 0; i < width; ++i) {
+//         for (int j = 0; j < height; ++j) {
+//             int cdf_v = cdf_matrix(i, j);
+//             float a = (float) ((cdf_v - cdf_min)*255);
+//             float b = (float) ((width*height-cdf_min));
 
-            res(i, j) = round(a/b);
-        }
-    }
+//             res(i, j) = round(a/b);
+//         }
+//     }
     
-    return res;
-}
+//     return res;
+// }
 
 float magnitude(float real, float imag) {
     float res = pow(real, 2) + pow(imag, 2);

@@ -31,6 +31,7 @@ extern "C" {
 #include "client.hpp"
 #include <chrono>
 #include <thread>
+#include <cstring>
 
 void mult_and_sum( paillier_pubkey_t* pu, paillier_ciphertext_t* sum, std::vector<paillier_ciphertext_t*> const &e_betas, std::vector<int> const &rho_sums) {
     /* PRE: Paillier AHE function accepts vector of ciphertexts(initialized with encryption of zero) for result, and betas, the corresponding vector of ints for rho sums, and the public key
@@ -77,29 +78,41 @@ int main() {
     // READ THE PUBLIC KEY AND ENCRYPTED BETAS
     // ========================================================================================
     // Read public key from disk and initialize it
-    std::fstream pubKeyFile("pubkey.txt", std::fstream::in);
-    std::string hexPubKey; 
-    std::getline(pubKeyFile, hexPubKey); 
-    paillier_pubkey_t* pu = paillier_pubkey_from_hex(&hexPubKey[0]);
+    std::fstream ipc1("ipc1.txt", std::fstream::in);
+    std::string hex_pk; 
+    std::getline(ipc1, hex_pk); 
+    paillier_pubkey_t* pu = paillier_pubkey_from_hex(&hex_pk[0]);
+    ipc1.close();
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+    std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
 
     /* IMPORT FROM BYTESTRINGS */
-    std::vector<paillier_ciphertext_t*> read_betas;          // prepare vector for read betas
-    std::fstream ctxtFile2("ciphertext.txt", std::fstream::in|std::fstream::binary); // open the file in read mode
+    std::vector<paillier_ciphertext_t*> read_betas;         // prepare vector for read betas
+    std::fstream ipc2("ipc2.txt", std::fstream::in|std::fstream::binary); // open the file in read mode
+    char* whole_ctxt = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2*arr_size); // allocate space to store the whole char* array
+    ipc2.read(whole_ctxt, PAILLIER_BITS_TO_BYTES(pu->bits)*2*arr_size); // read the whole input at once from the filestream
+    
     for (int i = 0; i < arr_size; ++i) {
     
         // The length of the ciphertext is twice the length of the key
-        char* byteCtxt2 = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-        // Read a bytestring for each beta
-        ctxtFile2.read(byteCtxt2, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-        paillier_ciphertext_t* enc_beta = paillier_ciphertext_from_bytes((void*)byteCtxt2, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+        char* char_beta = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+        // Coppy one beta from the whole array into char_beta
+        memcpy(char_beta, whole_ctxt + i*PAILLIER_BITS_TO_BYTES(pu->bits)*2/sizeof(char), PAILLIER_BITS_TO_BYTES(pu->bits)*2/sizeof(char));
+        // Import the char* for one beta to paillier_ciphertext_t
+        paillier_ciphertext_t* enc_beta = paillier_ciphertext_from_bytes((void*)char_beta, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
         // Push the encrypted beta to the vector
         read_betas.push_back(enc_beta);
 
+         /* CLEANUP */
+        free(char_beta);
+
     }
-    ctxtFile2.close();
+
+    ipc2.close();
+
+    /* CLEANUP */
+    free(whole_ctxt);
 
     // ========================================================================================
     // CLIENT'S ENCRYPTED MULTIPLICATION AND SUMMATION (= ENCRYPTION OF HASH)
@@ -108,21 +121,15 @@ int main() {
     paillier_ciphertext_t* enc_sum_res = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
     mult_and_sum(pu, enc_sum_res, read_betas, rho_sums);
 
-    /* Prepare/clean file for export */
-    std::ofstream ctxtFile3;
-    ctxtFile3.open("ciphertext.txt", std::ofstream::out | std::ofstream::trunc);
-    ctxtFile3.close();
-
     /* EXPORT TO BYTESTRING */
     // Open the file in "append" mode
-    std::fstream ctxtFile4("ciphertext.txt", std::fstream::out|std::fstream::app|std::fstream::binary);
+    std::fstream ipc3("ipc3.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
     // The length of the ciphertext is twice the length of the key
-    char* byteCtxt4 = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res);
-    ctxtFile4.write(byteCtxt4, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile4.close();
+    char* char_result = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res);
+    ipc3.write(char_result, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    ipc3.close();
 
      /* CLEANUP */
-
     paillier_freeciphertext(enc_sum_res);
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(read_betas[i]);
@@ -135,4 +142,4 @@ int main() {
 }
 
 // Compiling command for MacOS:
-// g++ -o client ncphclient.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
+// g++ -o client ncphclient.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread

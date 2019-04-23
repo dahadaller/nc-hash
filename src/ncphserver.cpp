@@ -25,6 +25,7 @@
 #include<vector>
 #include <gmpxx.h>
 #include<fstream>
+#include<sstream>
 #include"assert.h"
 extern "C" {
     #include <gmp.h>
@@ -32,6 +33,7 @@ extern "C" {
 }
 #include <chrono>
 #include <thread>
+#include <string>
 
 int get_rand_index(int const &size) {
     /* PRE: accepts the size of the array for which random index is needed, must be positive int
@@ -135,10 +137,10 @@ int main() {
     // SHARE THE PUBLIC KEY
     // ========================================================================================
     /* Prepare/clean file for export */
-    std::fstream pubKeyFile("pubkey.txt", std::fstream::out|std::fstream::trunc);
-    char* hexPubKey = paillier_pubkey_to_hex(pu);
-    pubKeyFile << hexPubKey;
-    pubKeyFile.close();
+    std::fstream ipc1("ipc1.txt", std::fstream::out|std::fstream::trunc);
+    char* hex_pk = paillier_pubkey_to_hex(pu);
+    ipc1 << hex_pk;
+    ipc1.close();
 
     
     // ========================================================================================
@@ -150,31 +152,27 @@ int main() {
 
     std::vector<paillier_ciphertext_t*> enc_betas;          // declare a vector for encryptions of betas 
 
-    /* Prepare/clean file for export */
-    std::ofstream ctxtFile0;
-    ctxtFile0.open("ciphertext.txt", std::ofstream::out | std::ofstream::trunc);
-    ctxtFile0.close();
-
-
     /* EXPORT TO BYTESTRING */
     // Open the file in "append" mode
-    std::fstream ctxtFile1("ciphertext.txt", std::fstream::out|std::fstream::app|std::fstream::binary);
-
+    std::fstream ipc2("ipc2.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
+    std::ostringstream export_str;                          // use sstream to create one string buffer for the whole vector
     for (int i = 0; i < arr_size; ++i) {
         paillier_plaintext_t* plain_beta = paillier_plaintext_from_ui((int)abs(betas[i])); // currently, we only consider positive beta values
         paillier_ciphertext_t* enc_beta = paillier_enc(NULL, pu, plain_beta, paillier_get_rand_devurandom);
         enc_betas.push_back(enc_beta);
         
         // The length of the ciphertext is twice the length of the key
-        char* byteCtxt1 = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_beta);
-        // append the bytestring for each beta
-        ctxtFile1.write(byteCtxt1, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+        char* char_beta = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_beta);
+        // Append the bytestring for each beta to the string buffer
+        export_str.write(char_beta, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
 
         /* CLEANUP */
         paillier_freeplaintext(plain_beta);
 
     }
-    ctxtFile1.close();
+    // Convert the string buffer into char* and write it into the file
+    ipc2.write(export_str.str().c_str(), PAILLIER_BITS_TO_BYTES(pu->bits)*2*arr_size);
+    ipc2.close();
 
     std::this_thread::sleep_for(std::chrono::milliseconds(3000));
 
@@ -183,12 +181,15 @@ int main() {
     // ========================================================================================
 
     /* IMPORT FROM BYTESTRINGS */
-    std::fstream ctxtFile5("ciphertext.txt", std::fstream::in|std::fstream::binary); // open the file
+    std::fstream ipc3("ipc3.txt", std::fstream::in|std::fstream::binary); // open the file
     // The length of the ciphertext is twice the length of the key
-    char* byteCtxt5 = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile5.read(byteCtxt5, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    paillier_ciphertext_t* read_res = paillier_ciphertext_from_bytes((void*)byteCtxt5, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile5.close();
+    char* char_result = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    ipc3.read(char_result, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    paillier_ciphertext_t* read_res = paillier_ciphertext_from_bytes((void*)char_result, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    ipc3.close();
+
+     /* CLEANUP */
+    free(char_result);
 
     paillier_plaintext_t* dec_res;
     dec_res = paillier_dec(NULL, pu, pr, read_res);
