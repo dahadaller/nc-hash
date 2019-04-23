@@ -1,4 +1,4 @@
-/* client.cpp is the program that will run on the client side in the public-key PHash scheme.
+/* client.hpp is the supporting image processing library for program that will run on the client side in the public-key PHash scheme.
     Copyright (C) <2019>  <NCP-Hash Group>
 
     This program is free software: you can redistribute it and/or modify

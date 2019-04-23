@@ -1,4 +1,4 @@
-/* client.cpp is the program that will run on the client side in the public-key PHash scheme.
+/* ncphclient.cpp is the program that will run on the client side in the public-key PHash scheme.
     Copyright (C) <2019>  <NCP-Hash Group>
 
     This program is free software: you can redistribute it and/or modify
@@ -133,3 +133,6 @@ int main() {
     return 0;
 
 }
+
+// Compiling command for MacOS:
+// g++ -o client ncphclient.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
