@@ -121,6 +121,31 @@ int main() {
     paillier_ciphertext_t* enc_sum_res = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
     mult_and_sum(pu, enc_sum_res, read_betas, rho_sums);
 
+    // ========================================================================================
+    // === ZKP OUTLINE ===
+    // ========================================================================================
+    /*
+    *   Compute A ~ Encryption of a hash based on random values instead of rho
+    * 
+    *   PSEUDOCODE: 
+    * 
+    *   std::vector<int> rands;
+    *   for (int i = 0; i < arr_size; ++i) {
+    *       int r = generate random integer from 1 to some n;
+    *       rands.push_back(r);
+    *   }
+    * 
+    *   paillier_ciphertext_t* A = paillier_create_enc_zero();
+    *   mult_and_sum(pu, A, read_betas, rands);
+    * 
+    */ 
+    // ========================================================================================
+    // === ZKP ADDITIONAL IPC ===
+    // ========================================================================================
+    /*
+    *   Export A to bytestring and send it to server together with the real hash
+    */
+
     /* EXPORT TO BYTESTRING */
     // Open the file in "append" mode
     std::fstream ipc3("ipc3.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
@@ -128,6 +153,32 @@ int main() {
     char* char_result = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res);
     ipc3.write(char_result, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
     ipc3.close();
+
+    // ========================================================================================
+    // === ZKP ADDITIONAL IPC ===
+    // ========================================================================================
+    /*
+    *   Receive challenge integer C from server
+    */
+    // ========================================================================================
+    // === ZKP OUTLINE ===
+    // ========================================================================================
+    /*
+    *   Generate vector S:
+    *
+    *   std::vector<int> S;
+    *   for (int i = 0; i < arr_size; ++i) {
+    *       s_i = (rands[i]+C*rho_sums[i]) mod (pu->n);
+    *       S.push_back(s_i);
+    *   }
+    */ 
+    // ========================================================================================
+    // === ZKP ADDITIONAL IPC ===
+    // ========================================================================================
+    /*
+    *   Send vector S to server
+    */
+
 
      /* CLEANUP */
     paillier_freeciphertext(enc_sum_res);

@@ -196,7 +196,63 @@ int main() {
     gmp_printf("Decrypted hash: %Zd\n", dec_res);
 
     // ========================================================================================
-    
+    // === ZKP ADDITIONAL IPC ===
+    // ========================================================================================
+    /*
+    *   Receive and import the A from bytestring along with the real hash.
+    */
+    // ========================================================================================
+    // === ZKP OUTLINE ===
+    // ========================================================================================
+    /*
+    *   Create challenge request C:
+    * 
+    *   int C = generate random integer from 0 to n;
+    */
+    // ========================================================================================
+    // === ZKP ADDITIONAL IPC ===
+    // ========================================================================================
+    /*
+    *   Send C to client
+    */
+    // ========================================================================================
+    /*
+    *   Receive vector S in response to C
+    */
+    // ========================================================================================
+    // === ZKP OUTLINE ===
+    // ========================================================================================
+    /*
+    *   Do the check:
+    *   int flag = 1;
+    *   while(flag) {
+    *        
+    *       for (int i = 0; i < arr_size; ++i) {
+    *      
+    *       LHS = decryption(hash generated based on s_i instead of rho_sums);
+    *   
+    *       // (z^C)modN^2:
+    *       paillier_plaintext_t* plain_C = paillier_plaintext_from_ui(C);
+    *       paillier_ciphertext_t* exponent = paillier_create_enc_zero();
+    *       paillier_exp(pu, exponent, enc_betas[i], plain_C);
+    * 
+    *       // A*(z^C)modN^2:
+    *       paillier_ciphertext_t* prod = paillier_create_enc_zero();
+    *       paillier_mul(pu, prod, A, exponent);
+    *       
+    *       RHS = decryption(prod);
+    * 
+    *       if (LHS != RHS) { 
+    *           flag = 0;
+    *           output error_message;
+    *           break;
+    *           }
+    *       }
+    *   }
+    *   output success_message;
+    * 
+    */
+
     /* CLEANUP */
 
     paillier_freeciphertext(read_res);
