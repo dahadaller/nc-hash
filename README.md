@@ -9,7 +9,6 @@ Using Paillier AHE and ZKP to turn a secret key PHash algorithm into a public ke
 This Application has the following dependencies:
 
 - [gmp](https://gmplib.org/) (for libpaillier)
-- [x11](https://www.xquartz.org/) (for cimg)
 - [cimg](http://cimg.eu/)
 - [libpaillier](http://acsc.cs.utexas.edu/libpaillier/)
 
@@ -20,10 +19,6 @@ If GMP is not already installed on your mac, you can quickly install it with [br
 ```bash
 brew install gmp
 ```
-
-### X11
-
-Download and install XQuartz from the [XQuartz download page](https://www.xquartz.org/).
 
 ### CIMG
 
@@ -48,10 +43,10 @@ To Compile our application, navigate to the `public-phash/src/` directory and ru
 
 ```bash
 g++ -o server ncphserver.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a
-g++ -o client ncphclient.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
+g++ -o client ncphclient.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread
 ```
 
-Note that if `libgmp.a`, `libpaillier.a`, or X11 are located anywhere other than the directories specified above, you will have to modify the arguments of the commands to match their locations on your own system.
+Note that if `libgmp.a` or `libpaillier.a` are located anywhere other than the directories specified above, you will have to modify the arguments of the commands to match their locations on your own system.
 
 
 
