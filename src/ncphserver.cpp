@@ -252,7 +252,16 @@ int main() {
     *   output success_message;
     * 
     */
+    // ========================================================================================
+    // === ZKP TODO LATER ===
+    // ========================================================================================
+    /*
+    *
+    *   Verify how many C's can break ZKP and reveal rho_sums and test it
+    * 
+    */
 
+   
     /* CLEANUP */
 
     paillier_freeciphertext(read_res);
