@@ -92,7 +92,7 @@ def rotate_bound(image, angle):
 
 # Invert pixel values
 # src = cv2.imread('../images/Lenna.png', 0)
-# # print(src.dtype)
+# print(src.dtype)
 # img = np.zeros((512,512), dtype=src.dtype)
 # for i in range(512):
 #     for j in range(512):
@@ -105,7 +105,7 @@ def rotate_bound(image, angle):
 # # cv2.imshow("img", img)
 # # cv2.waitKey(0)
 
-# cv2.imwrite('../images/IVLenna.png', equl)
+# cv2.imwrite('../images/IVLenna_origin.png', img)
 
 # JPEG Compression
 # img = cv2.imread('../images/Lenna.jpg', 0)
@@ -188,18 +188,18 @@ def rotate_bound(image, angle):
 # # cv2.waitKey(0)
 
 # % change of Pixel Values
-# src = cv2.imread('../images/Lenna.png', 0)
+src = cv2.imread('../images/Lenna.png', 0)
 # # print(src[10][10])
-# img = np.zeros((512,512), dtype=src.dtype)
+img = np.zeros((512,512), dtype=src.dtype)
 # # img[10][10] = 0.25 * src[10][10]
 # # print(img[10][10])
-# for i in range(512):
-#     for j in range(512):
-#         img[i][j] = 1 * src[i][j]
+for i in range(512):
+    for j in range(512):
+        img[i][j] = 0.50 * src[i][j]
 
 # blur = cv2.blur(img, (5, 5))
 # equl = cv2.equalizeHist(blur)
-# cv2.imwrite('../images/Lenna100.png', equl)
+cv2.imwrite('../images/Lenna50_origin.png', img)
 
 # Replace 1 randomly picked pixel with a random pixel value
 # img = cv2.imread('../images/Lenna.png', 0)
@@ -213,14 +213,14 @@ def rotate_bound(image, angle):
 # cv2.imwrite('../images/change_one_pixel.png', equl)
 
 # Replace 10% * 512 * 512 randomly picked pixels with a random pixel value
-img = cv2.imread('../images/Lenna.png', 0)
-# print(src[10][10])
-for _ in range(163):
-    row = randint(0, 511)
-    col = randint(0, 511)
-    val = randint(0, 255)
-    img[row][col] = val
+# img = cv2.imread('../images/Lenna.png', 0)
+# # print(src[10][10])
+# for _ in range(163):
+#     row = randint(0, 511)
+#     col = randint(0, 511)
+#     val = randint(0, 255)
+#     img[row][col] = val
 
-blur = cv2.blur(img, (5, 5))
-equl = cv2.equalizeHist(blur)
-cv2.imwrite('../images/change_pixels.png', equl)
+# blur = cv2.blur(img, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/change_pixels.png', equl)

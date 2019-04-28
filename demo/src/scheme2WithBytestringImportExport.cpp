@@ -115,7 +115,7 @@ long long int check_sum(std::vector<float> const &betas, std::vector<int> const 
     return sum;
 }
 
-int main() {
+int main(int argc, char* argv[]) {
     
     /* PARAMETERS & CONSTRAINTS: 
         * beta_mean - real number
@@ -203,8 +203,8 @@ int main() {
     // CImg<float> low_pass_filter(9, 9, 1, 1, 1.0/9.0);
     // img = apply_filter(img, low_pass_filter);
 
-    CImg<float> img("../images/HELenna.png");
-    CImg<float> img2("../images/JPCLenna.jpg");
+    CImg<float> img(argv[1]);
+    CImg<float> img2(argv[2]);
 
     CImg<float> polar = polar_FFT(img);
     CImg<float> polar2 = polar_FFT(img2);
