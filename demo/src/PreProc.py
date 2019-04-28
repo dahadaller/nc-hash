@@ -1,6 +1,7 @@
 import cv2
 import imutils
 import numpy as np
+from random import randint
 from matplotlib import pyplot as plt
 
 def rotate_bound(image, angle):
@@ -30,10 +31,41 @@ def rotate_bound(image, angle):
 
 # Cropping
 # img = cv2.imread('../images/Lenna.png', 0)
-# cropped = img[127:384, 127:384]
+# # 5%
+# cropped = img[6:506, 6:506]
 # cropped = cv2.resize(cropped, (512, 512))
 # blur = cv2.blur(cropped, (5, 5))
 # equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/cropped5.png', equl)
+
+# # 10%
+# cropped = img[13:499, 13:499]
+# cropped = cv2.resize(cropped, (512, 512))
+# blur = cv2.blur(cropped, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/cropped10.png', equl)
+
+# # 15%
+# cropped = img[20:492, 20:492]
+# cropped = cv2.resize(cropped, (512, 512))
+# blur = cv2.blur(cropped, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/cropped15.png', equl)
+
+# # 20%
+# cropped = img[27:485, 27:485]
+# cropped = cv2.resize(cropped, (512, 512))
+# blur = cv2.blur(cropped, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/cropped20.png', equl)
+
+# # 25%
+# cropped = img[34:478, 34:478]
+# cropped = cv2.resize(cropped, (512, 512))
+# blur = cv2.blur(cropped, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/cropped25.png', equl)
+
 
 # Rotate
 # img = cv2.imread('../images/RightRotateLenna.png', 0)
@@ -93,10 +125,45 @@ def rotate_bound(image, angle):
 # # cv2.imshow("img", img)
 # # cv2.waitKey(0)
 
-# rotated05 = imutils.rotate(src, 5)
-# blur = cv2.blur(rotated05, (5, 5))
+# rotated1 = imutils.rotate(src, 1)
+# blur = cv2.blur(rotated1, (5, 5))
 # equl = cv2.equalizeHist(blur)
-# cv2.imwrite('../images/rotate05.png', equl)
+# cv2.imwrite('../images/rotate1.png', equl)
+
+# rotated2 = imutils.rotate(src, 2)
+# blur = cv2.blur(rotated2, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/rotate2.png', equl)
+
+# rotated3 = imutils.rotate(src, 3)
+# blur = cv2.blur(rotated3, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/rotate3.png', equl)
+
+# rotated4 = imutils.rotate(src, 4)
+# blur = cv2.blur(rotated4, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/rotate4.png', equl)
+
+# rotated6 = imutils.rotate(src, 6)
+# blur = cv2.blur(rotated6, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/rotate6.png', equl)
+
+# rotated7 = imutils.rotate(src, 7)
+# blur = cv2.blur(rotated7, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/rotate7.png', equl)
+
+# rotated8 = imutils.rotate(src, 8)
+# blur = cv2.blur(rotated8, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/rotate8.png', equl)
+
+# rotated9 = imutils.rotate(src, 9)
+# blur = cv2.blur(rotated9, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/rotate9.png', equl)
 
 # rotated10 = imutils.rotate(src, 10)
 # blur = cv2.blur(rotated10, (5, 5))
@@ -121,15 +188,39 @@ def rotate_bound(image, angle):
 # # cv2.waitKey(0)
 
 # % change of Pixel Values
-src = cv2.imread('../images/Lenna.png', 0)
+# src = cv2.imread('../images/Lenna.png', 0)
+# # print(src[10][10])
+# img = np.zeros((512,512), dtype=src.dtype)
+# # img[10][10] = 0.25 * src[10][10]
+# # print(img[10][10])
+# for i in range(512):
+#     for j in range(512):
+#         img[i][j] = 1 * src[i][j]
+
+# blur = cv2.blur(img, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/Lenna100.png', equl)
+
+# Replace 1 randomly picked pixel with a random pixel value
+# img = cv2.imread('../images/Lenna.png', 0)
+# # print(src[10][10])
+# row = randint(0, 511)
+# col = randint(0, 511)
+# val = randint(0, 255)
+# img[row][col] = val
+# blur = cv2.blur(img, (5, 5))
+# equl = cv2.equalizeHist(blur)
+# cv2.imwrite('../images/change_one_pixel.png', equl)
+
+# Replace 10% * 512 * 512 randomly picked pixels with a random pixel value
+img = cv2.imread('../images/Lenna.png', 0)
 # print(src[10][10])
-img = np.zeros((512,512), dtype=src.dtype)
-# img[10][10] = 0.25 * src[10][10]
-# print(img[10][10])
-for i in range(512):
-    for j in range(512):
-        img[i][j] = 1 * src[i][j]
+for _ in range(163):
+    row = randint(0, 511)
+    col = randint(0, 511)
+    val = randint(0, 255)
+    img[row][col] = val
 
 blur = cv2.blur(img, (5, 5))
 equl = cv2.equalizeHist(blur)
-cv2.imwrite('../images/Lenna100.png', equl)
+cv2.imwrite('../images/change_pixels.png', equl)
