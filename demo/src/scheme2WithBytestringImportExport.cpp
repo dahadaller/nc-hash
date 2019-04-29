@@ -205,13 +205,17 @@ int main(int argc, char* argv[]) {
 
     CImg<float> img(argv[1]);
     CImg<float> img2(argv[2]);
+    CImg<float> img3(argv[3]);
+
 
     CImg<float> polar = polar_FFT(img);
     CImg<float> polar2 = polar_FFT(img2);
+    CImg<float> polar3 = polar_FFT(img3);
 
     float *message1 = sum_along_rho1(polar);
     std::vector<int> rho_sums = sum_along_rho(polar);
     std::vector<int> rho_sums2 = sum_along_rho(polar2);
+    std::vector<int> rho_sums3 = sum_along_rho(polar3);
 
 
     // ========================================================================================
@@ -220,8 +224,10 @@ int main(int argc, char* argv[]) {
 
     paillier_ciphertext_t* enc_sum_res = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
     paillier_ciphertext_t* enc_sum_res2 = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
+    paillier_ciphertext_t* enc_sum_res3 = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
     mult_and_sum(pu, enc_sum_res, read_betas, rho_sums);
     mult_and_sum(pu, enc_sum_res2, read_betas, rho_sums2);
+    mult_and_sum(pu, enc_sum_res3, read_betas, rho_sums3);
 
 
     /* Prepare/clean file for export */
@@ -232,6 +238,10 @@ int main(int argc, char* argv[]) {
     std::ofstream ctxtFile3_2;
     ctxtFile3_2.open("ciphertext2.txt", std::ofstream::out | std::ofstream::trunc);
     ctxtFile3_2.close();
+
+    std::ofstream ctxtFile3_3;
+    ctxtFile3_3.open("ciphertext3.txt", std::ofstream::out | std::ofstream::trunc);
+    ctxtFile3_3.close();
 
     /* EXPORT TO BYTESTRING */
     // Open the file in "append" mode
@@ -246,6 +256,12 @@ int main(int argc, char* argv[]) {
     char* byteCtxt4_2 = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res2);
     ctxtFile4_2.write(byteCtxt4_2, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
     ctxtFile4_2.close();
+
+    std::fstream ctxtFile4_3("ciphertext3.txt", std::fstream::out|std::fstream::app|std::fstream::binary);
+    // The length of the ciphertext is twice the length of the key
+    char* byteCtxt4_3 = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res3);
+    ctxtFile4_3.write(byteCtxt4_3, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    ctxtFile4_3.close();
 
 
 
@@ -268,6 +284,14 @@ int main(int argc, char* argv[]) {
     paillier_ciphertext_t* read_res_2 = paillier_ciphertext_from_bytes((void*)byteCtxt5_2, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
     ctxtFile5_2.close();
 
+    std::fstream ctxtFile5_3("ciphertext3.txt", std::fstream::in|std::fstream::binary); // open the file
+    // The length of the ciphertext is twice the length of the key
+    char* byteCtxt5_3 = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    ctxtFile5_3.read(byteCtxt5_3, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    paillier_ciphertext_t* read_res_3 = paillier_ciphertext_from_bytes((void*)byteCtxt5_3, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    ctxtFile5_3.close();
+
+    std::cout << "Image 1\n";
     paillier_plaintext_t* dec_res;
     dec_res = paillier_dec(NULL, pu, pr, read_res);
     gmp_printf("Decrypted hash: %Zd\n", dec_res);
@@ -276,6 +300,7 @@ int main(int argc, char* argv[]) {
     long long int check_hash = check_sum(betas, rho_sums);
     std::cout << "W/o encryption: " << check_hash << std::endl;
 
+    std::cout << "Image 2\n";
     paillier_plaintext_t* dec_res2;
     dec_res2 = paillier_dec(NULL, pu, pr, read_res_2);
     gmp_printf("Decrypted hash: %Zd\n", dec_res2);
@@ -283,12 +308,21 @@ int main(int argc, char* argv[]) {
     long long int check_hash2 = check_sum(betas, rho_sums2);
     std::cout << "W/o encryption: " << check_hash2 << std::endl;
 
+    std::cout << "Image 3\n";
+    paillier_plaintext_t* dec_res3;
+    dec_res3 = paillier_dec(NULL, pu, pr, read_res_3);
+    gmp_printf("Decrypted hash: %Zd\n", dec_res3);
+
+    long long int check_hash3 = check_sum(betas, rho_sums3);
+    std::cout << "W/o encryption: " << check_hash3 << std::endl;
+
     // ========================================================================================
     
     /* CLEANUP */
 
     paillier_freeciphertext(enc_sum_res);
     paillier_freeciphertext(enc_sum_res2);
+    paillier_freeciphertext(enc_sum_res3);
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(enc_betas[i]);
         paillier_freeciphertext(read_betas[i]);
@@ -304,4 +338,4 @@ int main(int argc, char* argv[]) {
 // g++ -o scheme2 scheme2.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a
 
 // With #include "client.hpp"
-// g++ -o scheme2 scheme2.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
+// g++ -o scheme2 scheme2WithBytestringImportExport.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
