@@ -10,8 +10,11 @@
 #include <cstdlib>
 #include <stdio.h>
 #include <random>
+#include <time.h>
 #include<vector>
-#include <gmpxx.h>
+using std::vector;
+// #include <gmpxx.h>
+#include <gmp.h>
 #include<fstream>
 #include"assert.h"
 extern "C" {
@@ -135,7 +138,14 @@ int main(int argc, char* argv[]) {
 
     paillier_pubkey_t* pu;                                  // the public key
     paillier_prvkey_t* pr;                                  // the private key 
+	struct timespec ts0,ts1;
+	clock_gettime(CLOCK_REALTIME,&ts0);
     paillier_keygen(paillier_n, &pu, &pr, paillier_get_rand_devurandom);
+	clock_gettime(CLOCK_REALTIME,&ts1);
+	// printf("time for keygen: %li ns\n",(ts1.tv_sec - ts0.tv_sec)*1000000000 + ts1.tv_nsec - ts0.tv_nsec);
+	printf("time for keygen: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+
+	clock_gettime(CLOCK_REALTIME,&ts0); /* begin clock for servers hash keygen work */
 
 
     // ========================================================================================
@@ -172,11 +182,14 @@ int main(int argc, char* argv[]) {
         ctxtFile1.write(byteCtxt1, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
     }
     ctxtFile1.close();
+	clock_gettime(CLOCK_REALTIME,&ts1);
+	printf("time for server's hash keygen: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
     // ========================================================================================
     // CLIENT'S RHO SUMS COMPUTATION:
     // ========================================================================================
 
+	clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for client reading encrypted betas */
     /* IMPORT FROM BYTESTRINGS */
     std::vector<paillier_ciphertext_t*> read_betas;          // prepare vector for read betas
     std::fstream ctxtFile2("ciphertext.txt", std::fstream::in|std::fstream::binary); // open the file in read mode
@@ -197,141 +210,66 @@ int main(int argc, char* argv[]) {
     // gmp_printf("Decrypted read beta: %Zd\n", dec_beta);
     }
     ctxtFile2.close();
+	clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for client reading encrypted betas */
+	printf("time to read encrypted betas: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
     // CImg<float> src("/Users/timyan/Documents/Research/ahe/GrayLenna.bmp");
     // CImg<float> img = get_grayscale(src);
     // CImg<float> low_pass_filter(9, 9, 1, 1, 1.0/9.0);
     // img = apply_filter(img, low_pass_filter);
 
-    CImg<float> img(argv[1]);
-    CImg<float> img2(argv[2]);
-    CImg<float> img3(argv[3]);
+	for (size_t i = 1; i < argc; i++) {
+		// ========================================================================================
+		// CLIENT'S ENCRYPTED MULTIPLICATION AND SUMMATION (= ENCRYPTION OF HASH)
+		// ========================================================================================
+		clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for client inner product */
+		CImg<float> img(argv[i]);
+		CImg<float> polar = polar_FFT(img);
+		vector<int> rho_sums = sum_along_rho(polar);
+		paillier_ciphertext_t* enc_sum_res = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
+		mult_and_sum(pu, enc_sum_res, read_betas, rho_sums);
+		/* EXPORT TO BYTESTRING */
+		std::ofstream ctxtFile3;
+		ctxtFile3.open("ciphertext.txt", std::ofstream::out | std::ofstream::trunc);
+		ctxtFile3.close();
+		std::fstream ctxtFile4("ciphertext.txt", std::fstream::out|std::fstream::app|std::fstream::binary);
+		char* byteCtxt4 = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res);
+		ctxtFile4.write(byteCtxt4, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+		ctxtFile4.close();
+		clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for client inner product */
+		printf("time for client work on image %i: %li ms\n",i,
+				(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+		// ========================================================================================
+		// SERVER'S HASH DECRYPTION
+		// ========================================================================================
+		clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for server decryption */
+		std::fstream ctxtFile5("ciphertext.txt", std::fstream::in|std::fstream::binary); // open the file
+		// The length of the ciphertext is twice the length of the key
+		char* byteCtxt5 = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+		ctxtFile5.read(byteCtxt5, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+		paillier_ciphertext_t* read_res = paillier_ciphertext_from_bytes((void*)byteCtxt5, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+		ctxtFile5.close();
+		printf("Image %i\n",i);
+		paillier_plaintext_t* dec_res;
+		dec_res = paillier_dec(NULL, pu, pr, read_res);
+		clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for server decryption */
+		printf("time for server decryption of image %i: %li ms\n",i,
+				(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+		gmp_printf("Decrypted hash: %Zd\n", dec_res);
 
-
-    CImg<float> polar = polar_FFT(img);
-    CImg<float> polar2 = polar_FFT(img2);
-    CImg<float> polar3 = polar_FFT(img3);
-
-    float *message1 = sum_along_rho1(polar);
-    std::vector<int> rho_sums = sum_along_rho(polar);
-    std::vector<int> rho_sums2 = sum_along_rho(polar2);
-    std::vector<int> rho_sums3 = sum_along_rho(polar3);
-
-
-    // ========================================================================================
-    // CLIENT'S ENCRYPTED MULTIPLICATION AND SUMMATION (= ENCRYPTION OF HASH)
-    // ========================================================================================
-
-    paillier_ciphertext_t* enc_sum_res = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
-    paillier_ciphertext_t* enc_sum_res2 = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
-    paillier_ciphertext_t* enc_sum_res3 = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
-    mult_and_sum(pu, enc_sum_res, read_betas, rho_sums);
-    mult_and_sum(pu, enc_sum_res2, read_betas, rho_sums2);
-    mult_and_sum(pu, enc_sum_res3, read_betas, rho_sums3);
-
-
-    /* Prepare/clean file for export */
-    std::ofstream ctxtFile3;
-    ctxtFile3.open("ciphertext.txt", std::ofstream::out | std::ofstream::trunc);
-    ctxtFile3.close();
-
-    std::ofstream ctxtFile3_2;
-    ctxtFile3_2.open("ciphertext2.txt", std::ofstream::out | std::ofstream::trunc);
-    ctxtFile3_2.close();
-
-    std::ofstream ctxtFile3_3;
-    ctxtFile3_3.open("ciphertext3.txt", std::ofstream::out | std::ofstream::trunc);
-    ctxtFile3_3.close();
-
-    /* EXPORT TO BYTESTRING */
-    // Open the file in "append" mode
-    std::fstream ctxtFile4("ciphertext.txt", std::fstream::out|std::fstream::app|std::fstream::binary);
-    // The length of the ciphertext is twice the length of the key
-    char* byteCtxt4 = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res);
-    ctxtFile4.write(byteCtxt4, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile4.close();
-
-    std::fstream ctxtFile4_2("ciphertext2.txt", std::fstream::out|std::fstream::app|std::fstream::binary);
-    // The length of the ciphertext is twice the length of the key
-    char* byteCtxt4_2 = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res2);
-    ctxtFile4_2.write(byteCtxt4_2, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile4_2.close();
-
-    std::fstream ctxtFile4_3("ciphertext3.txt", std::fstream::out|std::fstream::app|std::fstream::binary);
-    // The length of the ciphertext is twice the length of the key
-    char* byteCtxt4_3 = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res3);
-    ctxtFile4_3.write(byteCtxt4_3, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile4_3.close();
-
-
-
-    // ========================================================================================
-    // SERVER'S HASH DECRYPTION
-    // ========================================================================================
-
-    /* IMPORT FROM BYTESTRINGS */
-    std::fstream ctxtFile5("ciphertext.txt", std::fstream::in|std::fstream::binary); // open the file
-    // The length of the ciphertext is twice the length of the key
-    char* byteCtxt5 = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile5.read(byteCtxt5, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    paillier_ciphertext_t* read_res = paillier_ciphertext_from_bytes((void*)byteCtxt5, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile5.close();
-
-    std::fstream ctxtFile5_2("ciphertext2.txt", std::fstream::in|std::fstream::binary); // open the file
-    // The length of the ciphertext is twice the length of the key
-    char* byteCtxt5_2 = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile5_2.read(byteCtxt5_2, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    paillier_ciphertext_t* read_res_2 = paillier_ciphertext_from_bytes((void*)byteCtxt5_2, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile5_2.close();
-
-    std::fstream ctxtFile5_3("ciphertext3.txt", std::fstream::in|std::fstream::binary); // open the file
-    // The length of the ciphertext is twice the length of the key
-    char* byteCtxt5_3 = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile5_3.read(byteCtxt5_3, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    paillier_ciphertext_t* read_res_3 = paillier_ciphertext_from_bytes((void*)byteCtxt5_3, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    ctxtFile5_3.close();
-
-    std::cout << "Image 1\n";
-    paillier_plaintext_t* dec_res;
-    dec_res = paillier_dec(NULL, pu, pr, read_res);
-    gmp_printf("Decrypted hash: %Zd\n", dec_res);
-
-    /* CHECK W/O ENCRYPTION */
-    long long int check_hash = check_sum(betas, rho_sums);
-    std::cout << "W/o encryption: " << check_hash << std::endl;
-
-    std::cout << "Image 2\n";
-    paillier_plaintext_t* dec_res2;
-    dec_res2 = paillier_dec(NULL, pu, pr, read_res_2);
-    gmp_printf("Decrypted hash: %Zd\n", dec_res2);
-
-    long long int check_hash2 = check_sum(betas, rho_sums2);
-    std::cout << "W/o encryption: " << check_hash2 << std::endl;
-
-    std::cout << "Image 3\n";
-    paillier_plaintext_t* dec_res3;
-    dec_res3 = paillier_dec(NULL, pu, pr, read_res_3);
-    gmp_printf("Decrypted hash: %Zd\n", dec_res3);
-
-    long long int check_hash3 = check_sum(betas, rho_sums3);
-    std::cout << "W/o encryption: " << check_hash3 << std::endl;
-
-    // ========================================================================================
-    
-    /* CLEANUP */
-
-    paillier_freeciphertext(enc_sum_res);
-    paillier_freeciphertext(enc_sum_res2);
-    paillier_freeciphertext(enc_sum_res3);
-    for (int i = 0; i < arr_size; ++i) {
-        paillier_freeciphertext(enc_betas[i]);
-        paillier_freeciphertext(read_betas[i]);
-    }
-    enc_betas.clear();
-    paillier_freepubkey(pu);
-    paillier_freeprvkey(pr);
-    
-    return 0;
+		/* CHECK W/O ENCRYPTION */
+		long long int check_hash = check_sum(betas, rho_sums);
+		std::cout << "W/o encryption: " << check_hash << std::endl;
+		paillier_freeciphertext(enc_sum_res);
+		for (int i = 0; i < arr_size; ++i) {
+			paillier_freeciphertext(enc_betas[i]);
+			paillier_freeciphertext(read_betas[i]);
+		}
+		enc_betas.clear();
+		paillier_freepubkey(pu);
+		paillier_freeprvkey(pr);
+	}
+	return 0;
 }
 
 /* Compiling commands for MacOS */
