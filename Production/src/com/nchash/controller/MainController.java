@@ -37,8 +37,6 @@ public class MainController {
         if(pathToFile != null){
             setDefaultUploadImage(pathToFile);
         }
-
-
     }
 
 
@@ -95,9 +93,8 @@ public class MainController {
      * The function can be changed to return multiple files in the DragEvent.
      * @param event
      * @return
-     * @throws FileNotFoundException
      */
-    private String getPathToImageDragAndDrop(DragEvent event)throws FileNotFoundException{
+    private String getPathToImageDragAndDrop(DragEvent event){
         StringBuilder pathToImage = new StringBuilder("File:");
         pathToImage.append(event.getDragboard().getFiles().get(0));
         event.consume();
