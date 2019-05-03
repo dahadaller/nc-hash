@@ -20,6 +20,7 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <string.h>
 #include <random>
 #include <time.h>
 #include <vector>
@@ -151,6 +152,16 @@ long long int check_sum(std::vector<float> const &betas, std::vector<int> const 
     return sum;
 }
 
+char* change_file_name(char* path, int start) {
+    char *dir = (char *)calloc(strlen(path)+10, sizeof(char));
+    for (int i = 0; i < start; ++i) {
+        dir[i] = path[i];
+    }
+    strcat(dir, "_processed.png");
+    
+    return dir;
+}
+
 int main(int argc, char* argv[]) {
     
     /* PARAMETERS & CONSTRAINTS: 
@@ -162,14 +173,18 @@ int main(int argc, char* argv[]) {
         * max_rho = maximal possible radius for uniform distribution; arr_size >= max_rho >= min_rho >= 0
         * paillier_n = security parameter, number os bits in the modulo, integer; currently, has to be multiple of 4 for ease of inter-process communication
     */
+    if (argc < 2) {
+        fprintf(stderr, "usage: %s <image_1> ... <image_n>\n", argv[0]);
+        exit(1);
+    }
     // ============
     //  Preprocess
     // ============
     int child = fork();
     pid_t status;
+    char* myargv[100];
     while (child == 0) {
         int myargc = argc + 1;
-        char* myargv[100];
         myargv[0] = "python";
         myargv[1] = "preprocess.py";
         int i;
@@ -265,14 +280,27 @@ int main(int argc, char* argv[]) {
     mpf_t orig_hash;
     mpf_init(orig_hash);                                    // initialize hash_diff and set it to 0
 	for (size_t i = 1; i < argc; i++) {
+        // Modify input image argument
+        char *newargv;
+        int loops = strlen(argv[i]);
+        for (int j = loops-1; j >= 0; j--) {
+            if (argv[i][j] == '.') {
+                newargv = change_file_name(argv[i], j);
+                break;
+            }
+        }
+        // printf("newargv = %s\n", newargv);
 
 		// ========================================================================================
 		// CLIENT'S ENCRYPTED MULTIPLICATION AND SUMMATION (= ENCRYPTION OF HASH)
 		// ========================================================================================
 		clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for client inner product */
-		CImg<float> img(argv[i]);
+		// CImg<float> img(argv[i]);
+        CImg<float> img(newargv);
 		CImg<float> polar = polar_FFT(img);
 		vector<int> rho_sums = sum_along_rho(polar);
+        free(newargv);
+
 		paillier_ciphertext_t* enc_sum_res = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
 		mult_and_sum(pu, enc_sum_res, read_betas, rho_sums);
 		/* EXPORT TO BYTESTRING */
@@ -298,7 +326,7 @@ int main(int argc, char* argv[]) {
 		ctxtFile5.read(byteCtxt5, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
 		paillier_ciphertext_t* read_res = paillier_ciphertext_from_bytes((void*)byteCtxt5, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
 		ctxtFile5.close();
-		printf("Image: %s\n", argv[i]);
+		// printf("Image: %s\n", argv[i]);
 		paillier_plaintext_t* dec_res;
 		dec_res = paillier_dec(NULL, pu, pr, read_res);
 		clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for server decryption */
@@ -622,7 +650,6 @@ int main(int argc, char* argv[]) {
         paillier_freeplaintext(dec_res_zkp);
         paillier_freeciphertext(A);
         paillier_freeciphertext(read_A);
-
 	}
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(enc_betas[i]);
