@@ -343,10 +343,6 @@ int main(int argc, char* argv[]) {
         /* CLEANUP */
         free(char_result);
 
-        paillier_plaintext_t* dec_res_zkp;
-        dec_res_zkp = paillier_dec(NULL, pu, pr, read_res_zkp);
-        gmp_printf("Decrypted hash: %Zd\n", dec_res_zkp);
-
 
         // ========================================================================================
         // === SERVER: ZKP ADDITIONAL IPC ===
