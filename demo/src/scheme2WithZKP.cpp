@@ -1,4 +1,4 @@
-/* scheme2WithZKP.hpp is the combined serrver-client program implementing publicallly evaluable PHash with Zero-Knowledge Proof.
+/* scheme2WithZKP.hpp is the combined server-client program implementing publicallly evaluable PHash with Zero-Knowledge Proof.
     Copyright (C) <2019>  <NCP-Hash Group>
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -79,7 +79,7 @@ int get_rho(int min_rho, int max_rho) {
 }
 
 void get_rho_beta_arr (int num_rhos, std::vector<float> &betas, int min_rho, int max_rho, float beta_mean, float beta_std) {
-    /* PRE: Accepts number or radii to copute corresponding betas for
+    /* PRE: Accepts number or radii to compute corresponding betas for
         POST: Returns 256 integers long array of corresponding betas with beta(i) if there exists rho==i and 0 o.w. */
 
     std::vector<int> rhos;                                  // initialize vector to store rhos
@@ -139,7 +139,7 @@ void mult_and_sum(paillier_pubkey_t* pu, paillier_ciphertext_t* sum, std::vector
 }
 
 long long int check_sum(std::vector<float> const &betas, std::vector<int> const &rho_sums) {
-    /* PRE: Accepts vector of flots for beta and vector of integers for sums of pixels for all rhos, must be same size
+    /* PRE: Accepts vector of floats for beta and vector of integers for sums of pixels for all rhos, must be same size
         POST: Returns a hash value based on scheme 2 with all computations in the clear */
     
     assert(betas.size() == rho_sums.size());
@@ -565,8 +565,8 @@ int main(int argc, char* argv[]) {
 
 
         // Need to implement comparison = convert plaintext to strings
-        gmp_printf("LHS: %Zd\n", LHS);
-        gmp_printf("RHS: %Zd\n", RHS);
+        // gmp_printf("LHS: %Zd\n", LHS);
+        // gmp_printf("RHS: %Zd\n", RHS);
         if(!mpz_cmp (LHS->m, RHS->m)) {
             std::cout << "ZKP check passed!" << std::endl;
         }
