@@ -1,9 +1,17 @@
-//
-//  scheme2.cpp
-//  
-//
-//  Created by Anastasiia Timashova on 3/25/19.
-//
+/* scheme2WithZKP.hpp is the combined serrver-client program implementing publicallly evaluable PHash with Zero-Knowledge Proof.
+    Copyright (C) <2019>  <NCP-Hash Group>
+    This program is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+    This program is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    For any questions, you may contact NCP-Hash Group via opening an issue on https://github.com/ncp-hash/public-phash/issues
+*/
 
 #include <iostream>
 #include <math.h>
@@ -14,11 +22,11 @@
 #include <sys/wait.h>
 #include <random>
 #include <time.h>
-#include<vector>
+#include <vector>
 using std::vector;
 #include <gmpxx.h>
 #include <gmp.h>
-#include<fstream>
+#include <fstream>
 #include"assert.h"
 extern "C" {
     #include <gmp.h>
@@ -90,23 +98,6 @@ void get_rho_beta_arr (int num_rhos, std::vector<float> &betas, int min_rho, int
     }
 }
 
-// void mult_and_sum( paillier_pubkey_t* pu, paillier_ciphertext_t* sum, std::vector<paillier_ciphertext_t*> const &e_betas, std::vector<int> const &rho_sums) {
-//     /* PRE: Paillier AHE function accepts vector of ciphertexts(initialized with encryption of zero) for result, and betas, the corresponding vector of ints for rho sums, and the public key
-//         POST: Stores the encryption of sum of rho*beta products in the sum argument*/
-
-//     assert(e_betas.size() == rho_sums.size());              // assert all three input vectors are same size
-//     int limit = e_betas.size();
-//     for(int i = 0; i < limit; ++i) {                        // computing dot product = sum((ciphertext[i] * plaintext[i])):
-//         paillier_plaintext_t* plain_rho_sum = paillier_plaintext_from_ui((int)rho_sums[i]);
-//         paillier_ciphertext_t* enc_mult_res = paillier_create_enc_zero();
-//         paillier_exp( pu, enc_mult_res, e_betas[i], plain_rho_sum );
-//         paillier_mul(pu, sum, sum, enc_mult_res );
-
-//         /* CLEANUP */
-//         paillier_freeplaintext(plain_rho_sum);
-//         paillier_freeciphertext(enc_mult_res);
-//     }
-// }
 
 void mult_and_sum( paillier_pubkey_t* pu, paillier_ciphertext_t* sum, std::vector<paillier_ciphertext_t*> const &e_betas, std::vector<int> const &exponent) {
     /* PRE: Paillier AHE function accepts vector of ciphertexts(initialized with encryption of zero) for result, and betas, the corresponding vector of ints for exponent, and the public key
@@ -255,7 +246,6 @@ int main(int argc, char* argv[]) {
     /* IMPORT FROM BYTESTRINGS */
     std::vector<paillier_ciphertext_t*> read_betas;          // prepare vector for read betas
     std::fstream ctxtFile2("ciphertext.txt", std::fstream::in|std::fstream::binary); // open the file in read mode
-    // printf("entering loop that populates read_betas\n");
     for (int i = 0; i < arr_size; ++i) {
            
     
@@ -267,20 +257,10 @@ int main(int argc, char* argv[]) {
     // Push the encrypted beta to the vector
     read_betas.push_back(enc_beta);
 
-    /* DEBUGGING: */
-    // std::cout << "\n" << i << "\tSuccess!\t";
-    // paillier_plaintext_t* dec_beta;
-    // dec_beta = paillier_dec(NULL, pu, pr, enc_beta);
-    // gmp_printf("Decrypted read beta: %Zd\n", dec_beta);
     }
     ctxtFile2.close();
 	clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for client reading encrypted betas */
 	printf("time to read encrypted betas: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
-
-    // CImg<float> src("/Users/timyan/Documents/Research/ahe/GrayLenna.bmp");
-    // CImg<float> img = get_grayscale(src);
-    // CImg<float> low_pass_filter(9, 9, 1, 1, 1.0/9.0);
-    // img = apply_filter(img, low_pass_filter);
 
 	for (size_t i = 1; i < argc; i++) {
 		// ========================================================================================
@@ -327,11 +307,6 @@ int main(int argc, char* argv[]) {
 		/* CHECK W/O ENCRYPTION */
 		long long int check_hash = check_sum(betas, rho_sums);
 		std::cout << "W/o encryption: " << check_hash << std::endl;
-		// paillier_freeciphertext(enc_sum_res);
-		// for (int i = 0; i < arr_size; ++i) {
-		// 	paillier_freeciphertext(enc_betas[i]);
-		// 	paillier_freeciphertext(read_betas[i]);
-		// }
         clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for server decryption in the clear*/
         printf("time for server decryption in the clear of image %i: %li ns\n",i,
 				(ts1.tv_sec - ts0.tv_sec)*1000000000 + (ts1.tv_nsec - ts0.tv_nsec));
@@ -351,10 +326,6 @@ int main(int argc, char* argv[]) {
             mpz_urandomm(r.get_mpz_t(), state, pu->n);
             rands.push_back(r);
         }
-
-        // for(int i; i < 10; i++){
-        //     void* a = paillier_ciphertext_to_bytes(sizeof(read_betas[i]) , read_betas[i]);
-        // }
 
         paillier_ciphertext_t* A = paillier_create_enc_zero();
         mult_and_sum(pu, A, read_betas, rands);
@@ -474,7 +445,6 @@ int main(int argc, char* argv[]) {
         *   Receive challenge integer C from server
         */
 
-        // std::this_thread::sleep_for(std::chrono::milliseconds(3000));
         clock_gettime(CLOCK_REALTIME,&ts0);
         mpz_class read_C;
         mpz_init(read_C.get_mpz_t());
@@ -621,34 +591,20 @@ int main(int argc, char* argv[]) {
         paillier_freeplaintext(dec_res);
         paillier_freeciphertext(read_res_zkp);
         paillier_freeplaintext(dec_res_zkp);
-        // for (int i = 0; i < arr_size; ++i) {
-        //     paillier_freeciphertext(enc_betas[i]);
-        //     paillier_freeciphertext(read_betas[i]);
-        // }
-        // enc_betas.clear();
-        // read_betas.clear();
-        // paillier_freepubkey(pu);
-        // paillier_freeprvkey(pr);
         paillier_freeciphertext(A);
         paillier_freeciphertext(read_A);
-        // mult_and_sum(pu, enc_sum_res, read_betas, rho_sums);
 
-
-
-		// paillier_freepubkey(pu);
-		// paillier_freeprvkey(pr);
 	}
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(enc_betas[i]);
         paillier_freeciphertext(read_betas[i]);
     }
+    enc_betas.clear();
+    read_betas.clear();
     paillier_freepubkey(pu);
     paillier_freeprvkey(pr);
 	return 0;
 }
 
 /* Compiling commands for MacOS */
-// g++ -o scheme2 scheme2.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a
-
-// With #include "client.hpp"
 // g++ -o scheme2 scheme2WithZKP.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
