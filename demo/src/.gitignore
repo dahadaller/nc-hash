@@ -1,8 +1,13 @@
 demo
 scheme2
 
+# VS Code #
+.vscode
+
 # OS generated files #
 ######################
+.DS_Store/ #this is for .DS_Store directories 
+*.DS_Store
 *.DS_Storegit
 *.DS_Store?
 ._*
