@@ -185,14 +185,14 @@ int main(int argc, char* argv[]) {
     char* myargv[100];
     while (child == 0) {
         int myargc = argc + 1;
-        myargv[0] = "python";
+        myargv[0] = "3";
         myargv[1] = "preprocess.py";
         int i;
         for (i = 2; i < myargc; ++i) {
             myargv[i] = argv[i-1];
         }
         myargv[i] = NULL;
-        execvp("python", myargv);
+        execvp("python3", myargv);
         printf("EXECVP FAILED\n");
     }
     waitpid(child, &status, 0);
@@ -280,6 +280,8 @@ int main(int argc, char* argv[]) {
     mpf_t orig_hash;
     mpf_init(orig_hash);                                    // initialize hash_diff and set it to 0
 	for (size_t i = 1; i < argc; i++) {
+        std::string sep = "\n======================\n\tImage " + std::to_string(i) + "\n======================";
+        std::cout << sep << std::endl;
         // Modify input image argument
         char *newargv;
         int loops = strlen(argv[i]);
@@ -338,31 +340,6 @@ int main(int argc, char* argv[]) {
 		/* CHECK W/O ENCRYPTION */
 		long long int check_hash = check_sum(betas, rho_sums);
 		std::cout << "W/o encryption: " << check_hash << std::endl;
-
-        /* HASH DIFFERENCE */
-        if (i == 1) {                                       // save the original hash value
-            mpf_set_z(orig_hash, dec_res->m);
-        }
-        else {                                              // compute difference with the original hash
-            const int precision = 512;
-            mpf_set_default_prec (precision);               // set defference precision
-            mpf_t curr_hash;
-            mpf_init(curr_hash);
-            mpf_set_z(curr_hash, dec_res->m);
-            mpf_t hash_diff;
-            mpf_init(hash_diff);                            // initialize difference to 0
-            // diff = |(old-new)/old|
-            mpf_sub(hash_diff, orig_hash, curr_hash);
-            mpf_div(hash_diff, hash_diff, orig_hash);
-            mpf_abs(hash_diff, hash_diff);
-
-            gmp_printf("\nNormalized difference with the original: %.5Ff\n", hash_diff);
-
-            mpf_t percent_diff;
-            mpf_init(percent_diff);
-            mpf_mul_ui(percent_diff, hash_diff, 100);
-            gmp_printf("Percent difference with the original: %.1Ff %%\n\n", percent_diff);
-        }
         
         clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for server decryption in the clear*/
         printf("time for server decryption in the clear of image %i: %li ns\n",i,
@@ -632,6 +609,32 @@ int main(int argc, char* argv[]) {
         clock_gettime(CLOCK_REALTIME,&ts1);
         // printf("time for checking: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
         printf("time for ZKP: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+
+
+        /* HASH DIFFERENCE */
+        if (i == 1) {                                       // save the original hash value
+            mpf_set_z(orig_hash, dec_res->m);
+        }
+        else {                                              // compute difference with the original hash
+            const int precision = 512;
+            mpf_set_default_prec (precision);               // set defference precision
+            mpf_t curr_hash;
+            mpf_init(curr_hash);
+            mpf_set_z(curr_hash, dec_res->m);
+            mpf_t hash_diff;
+            mpf_init(hash_diff);                            // initialize difference to 0
+            // diff = |(old-new)/old|
+            mpf_sub(hash_diff, orig_hash, curr_hash);
+            mpf_div(hash_diff, hash_diff, orig_hash);
+            mpf_abs(hash_diff, hash_diff);
+
+            gmp_printf("\nNormalized difference with the original: %.5Ff\n", hash_diff);
+
+            mpf_t percent_diff;
+            mpf_init(percent_diff);
+            mpf_mul_ui(percent_diff, hash_diff, 100);
+            gmp_printf("Percent difference with the original: %.1Ff %%\n", percent_diff);
+        }
         
         // ========================================================================================
         // === ZKP TODO LATER ===
