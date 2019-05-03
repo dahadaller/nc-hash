@@ -329,8 +329,8 @@ int main(int argc, char* argv[]) {
 
         paillier_ciphertext_t* A = paillier_create_enc_zero();
         mult_and_sum(pu, A, read_betas, rands);
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for computing A: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // printf("time for computing A: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
         // ========================================================================================
         // === CLIENT: ZKP ADDITIONAL IPC CLIENT ===
@@ -340,14 +340,14 @@ int main(int argc, char* argv[]) {
         */
         /* EXPORT TO BYTESTRING */
         // Open the file in "append" mode
-        clock_gettime(CLOCK_REALTIME,&ts0);
+        // clock_gettime(CLOCK_REALTIME,&ts0);
         std::fstream zkp1_w("zkp1.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
         // The length of the ciphertext is twice the length of the key
         char* char_A_w = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, A);
         zkp1_w.write(char_A_w, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
         zkp1_w.close();
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for sending A to Server: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // printf("time for sending A to Server: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
         // ========================================================================================
 
         // ========================================================================================
@@ -355,21 +355,21 @@ int main(int argc, char* argv[]) {
         // ========================================================================================
         /* EXPORT TO BYTESTRING */
         // Open the file in "append" mode
-        clock_gettime(CLOCK_REALTIME,&ts0);
+        // clock_gettime(CLOCK_REALTIME,&ts0);
         std::fstream ipc3_w("ipc3.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
         // The length of the ciphertext is twice the length of the key
         char* char_result_w = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res);
         ipc3_w.write(char_result_w, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
         ipc3_w.close();
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for sending Encrypted Hash to Server: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // printf("time for sending Encrypted Hash to Server: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
         // ========================================================================================
         // SERVER: READ AND DECRYPT HASH
         // ========================================================================================
 
         /* IMPORT FROM BYTESTRINGS */
-        clock_gettime(CLOCK_REALTIME,&ts0);
+        // clock_gettime(CLOCK_REALTIME,&ts0);
         std::fstream ipc3("ipc3.txt", std::fstream::in|std::fstream::binary); // open the file
         // The length of the ciphertext is twice the length of the key
         char* char_result = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
@@ -382,8 +382,8 @@ int main(int argc, char* argv[]) {
 
         paillier_plaintext_t* dec_res_zkp;
         dec_res_zkp = paillier_dec(NULL, pu, pr, read_res_zkp);
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for read anddecrypt hash: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // printf("time for read anddecrypt hash: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
         gmp_printf("Decrypted hash: %Zd\n", dec_res_zkp);
 
 
@@ -395,15 +395,15 @@ int main(int argc, char* argv[]) {
         */
 
         /* IMPORT FROM BYTESTRINGS */
-        clock_gettime(CLOCK_REALTIME,&ts0);
+        // clock_gettime(CLOCK_REALTIME,&ts0);
         std::fstream zkp1("zkp1.txt", std::fstream::in|std::fstream::binary); // open the file
         // The length of the ciphertext is twice the length of the key
         char* char_A = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
         zkp1.read(char_A, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
         paillier_ciphertext_t* read_A = paillier_ciphertext_from_bytes((void*)char_A, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
         zkp1.close();
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for Receive and import the A from bytestring along with the real hash: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // printf("time for Receive and import the A from bytestring along with the real hash: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
         /* CLEANUP */
         free(char_A);
@@ -415,13 +415,13 @@ int main(int argc, char* argv[]) {
         *   Create challenge request C:
         */
         // int C = get_rand_index(pu->n);
-        clock_gettime(CLOCK_REALTIME,&ts0);
+        // clock_gettime(CLOCK_REALTIME,&ts0);
         gmp_randstate_t state;
         gmp_randinit_mt(state);
         mpz_class C;
         mpz_urandomm(C.get_mpz_t(), state, pu->n);
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for creating challenge request C: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // printf("time for creating challenge request C: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
         // ========================================================================================
         // === SERVER: ZKP ADDITIONAL IPC ===
@@ -429,14 +429,14 @@ int main(int argc, char* argv[]) {
         /*
         *   Send C to client
         */
-        clock_gettime(CLOCK_REALTIME,&ts0);
+        // clock_gettime(CLOCK_REALTIME,&ts0);
         FILE * zkp2_w = fopen("zkp2.txt", "w+");
         if (mpz_out_raw (zkp2_w, C.get_mpz_t()) == 0) {
             std::cout << "Error occurs from zkp2( mpz_out_raw)\n";
         }
         fclose(zkp2_w);
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for sending C to client: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // printf("time for sending C to client: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
         // ========================================================================================
         // === CLIENT: ZKP ADDITIONAL IPC ===
@@ -445,15 +445,15 @@ int main(int argc, char* argv[]) {
         *   Receive challenge integer C from server
         */
 
-        clock_gettime(CLOCK_REALTIME,&ts0);
+        // clock_gettime(CLOCK_REALTIME,&ts0);
         mpz_class read_C;
         mpz_init(read_C.get_mpz_t());
         size_t number_bytes_read;
         FILE* zkp2 = fopen("zkp2.txt","r");
         number_bytes_read = mpz_inp_raw ( read_C.get_mpz_t(), zkp2 );
         fclose(zkp2);
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for receiving C from server: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // printf("time for receiving C from server: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
         // ========================================================================================
         // === ZKP OUTLINE ===
@@ -461,7 +461,7 @@ int main(int argc, char* argv[]) {
         /*
         *   Generate vector S:
         */
-        clock_gettime(CLOCK_REALTIME,&ts0);
+        // clock_gettime(CLOCK_REALTIME,&ts0);
         std::vector<mpz_class> S;
         for (int i = 0; i < arr_size; ++i) {
     
@@ -482,8 +482,8 @@ int main(int argc, char* argv[]) {
             
             S.push_back(s_i);
         }
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for generating vector S: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // printf("time for generating vector S: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
         // // ========================================================================================
         // // === ZKP ADDITIONAL IPC ===
@@ -540,7 +540,7 @@ int main(int argc, char* argv[]) {
         *   Do the check:
         */
         // hash generated based on s_i instead of rho_sums:
-        clock_gettime(CLOCK_REALTIME,&ts0);
+        // clock_gettime(CLOCK_REALTIME,&ts0);
         paillier_ciphertext_t* hash_S = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
         // mult_and_sum(pu, hash_S, enc_betas, read_S);
         mult_and_sum(pu, hash_S, enc_betas, S);
@@ -574,7 +574,8 @@ int main(int argc, char* argv[]) {
             std::cout << "Did not pass ZKP check!" << std::endl;
         }
         clock_gettime(CLOCK_REALTIME,&ts1);
-        printf("time for checking: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // printf("time for checking: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        printf("time for ZKP: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
         
         // ========================================================================================
         // === ZKP TODO LATER ===
