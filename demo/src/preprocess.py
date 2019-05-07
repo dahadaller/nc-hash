@@ -15,16 +15,40 @@ def naming(path):
             
     return file_name     
 
+def cropping(img, long, short):
+    a = int(long/2 - short/2)
+    print("a =", a)
+    b = int(long/2 + short/2)
+    print("b =", b)
+    if (img.shape[0] == long):
+        return img[a:b, 0:short]
+        # img = img[a:b, 0:short]
+        # img = img[0:short, a:b]
+    elif (img.shape[1] == long):
+        return img[0:short, a:b]
+        # img = img[0:short, a:b]
+        # img = img[a:b, 0:short]
+
 for i in range(1, len(sys.argv)):
     src = cv2.imread(sys.argv[i], 0)
-    src = cv2.resize(src, (512, 512))
-    blur = cv2.blur(src, (5, 5))
-    equl = cv2.equalizeHist(blur)
-
-    image_name = naming(sys.argv[i])
-    # print("image_name =", image_name)
-    # image_name = sys.argv[i]
-    # image_name = "../bmp/" + image_name
-    cv2.imwrite(image_name, equl)
-
-
+    print(src.shape)
+    longer_side = max(src.shape[0], src.shape[1])
+    shorter_side = min(src.shape[0], src.shape[1])
+    if (not (longer_side == shorter_side == 512)):
+        print("Yes")
+        img = cropping(src, longer_side, shorter_side)
+        print(img.shape)
+        img = cv2.resize(img, (512, 512))
+        blur = cv2.blur(img, (5, 5))
+        equl = cv2.equalizeHist(blur)
+        image_name = naming(sys.argv[i])
+        cv2.imwrite(image_name, equl)
+    
+    else:
+        blur = cv2.blur(src, (5, 5))
+        equl = cv2.equalizeHist(blur)
+        image_name = naming(sys.argv[i])
+        # print("image_name =", image_name)
+        # image_name = sys.argv[i]
+        # image_name = "../bmp/" + image_name
+        cv2.imwrite(image_name, equl)
