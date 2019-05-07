@@ -1,11 +1,11 @@
 import cv2
 
 camera = cv2.VideoCapture(0)
-cv2.namedWindow("Camera")
+cv2.namedWindow("camera")
 img_counter = 0
 
 while True:
-    ret, frame = cam.read()
+    ret, frame = camera.read()
     cv2.imshow("test", frame)
     if not ret:
         break
@@ -20,7 +20,8 @@ while True:
         img_name = "/Users/bon/Documents/CCNY/public-phash/demo/images/test_image_{}.png".format(img_counter)
         cv2.imwrite(img_name, frame)
         print("{} written!".format(img_name))
-        img_counter += 1
+        # img_counter += 1
+        break
 
 camera.release()
 
