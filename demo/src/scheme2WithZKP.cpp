@@ -675,6 +675,7 @@ int main(int argc, char* argv[]) {
         paillier_freeciphertext(A);
         paillier_freeciphertext(read_A);
 	}
+    std::cout << "\n======================\n" << std::endl;
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(enc_betas[i]);
         paillier_freeciphertext(read_betas[i]);
