@@ -208,13 +208,15 @@ int main(int argc, char* argv[]) {
     paillier_pubkey_t* pu;                                  // the public key
     paillier_prvkey_t* pr;                                  // the private key 
 	struct timespec ts0,ts1;
+    time_t pubkey_time = 0;
     time_t total_server = 0;
     time_t total_client = 0;
 	clock_gettime(CLOCK_REALTIME,&ts0);
     paillier_keygen(paillier_n, &pu, &pr, paillier_get_rand_devurandom);
 	clock_gettime(CLOCK_REALTIME,&ts1);
 	// printf("time for keygen: %li ns\n",(ts1.tv_sec - ts0.tv_sec)*1000000000 + ts1.tv_nsec - ts0.tv_nsec);
-	printf("time for keygen: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+    pubkey_time += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
+	// printf("time for keygen: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
 	clock_gettime(CLOCK_REALTIME,&ts0); /* begin clock for servers hash keygen work */
 
@@ -254,8 +256,9 @@ int main(int argc, char* argv[]) {
     }
     ctxtFile1.close();
 	clock_gettime(CLOCK_REALTIME,&ts1);
-	// printf("time for server's hash keygen: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
-    total_server += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
+    pubkey_time += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
+	printf("\ntime for public key generation: %li ms\n",pubkey_time);
+    // total_server += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
 
     // ========================================================================================
     // CLIENT'S RHO SUMS COMPUTATION:
@@ -649,12 +652,12 @@ int main(int argc, char* argv[]) {
             mpf_div(hash_diff, hash_diff, orig_hash);
             mpf_abs(hash_diff, hash_diff);
 
-            gmp_printf("\nNormalized difference with the original: %.5Ff\n", hash_diff);
+            gmp_printf("\nNormalized difference with the original: %.5Ff", hash_diff);
 
             mpf_t percent_diff;
             mpf_init(percent_diff);
             mpf_mul_ui(percent_diff, hash_diff, 100);
-            gmp_printf("Percent difference with the original: %.1Ff %%\n", percent_diff);
+            gmp_printf(" (%.1Ff %%)\n", percent_diff);
         }
         
         // ========================================================================================
