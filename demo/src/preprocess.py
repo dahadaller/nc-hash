@@ -17,8 +17,8 @@ def naming(path):
 
 for i in range(1, len(sys.argv)):
     src = cv2.imread(sys.argv[i], 0)
+    src = cv2.resize(src, (512, 512))
     blur = cv2.blur(src, (5, 5))
-    img = cv2.resize(blur, (512, 512))
     equl = cv2.equalizeHist(blur)
 
     image_name = naming(sys.argv[i])

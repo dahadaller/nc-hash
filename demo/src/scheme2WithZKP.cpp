@@ -29,6 +29,7 @@ using std::vector;
 #include <gmp.h>
 #include <fstream>
 #include"assert.h"
+
 extern "C" {
     #include <gmp.h>
     #include <paillier.h>
@@ -207,6 +208,8 @@ int main(int argc, char* argv[]) {
     paillier_pubkey_t* pu;                                  // the public key
     paillier_prvkey_t* pr;                                  // the private key 
 	struct timespec ts0,ts1;
+    time_t total_server = 0;
+    time_t total_client = 0;
 	clock_gettime(CLOCK_REALTIME,&ts0);
     paillier_keygen(paillier_n, &pu, &pr, paillier_get_rand_devurandom);
 	clock_gettime(CLOCK_REALTIME,&ts1);
@@ -251,7 +254,8 @@ int main(int argc, char* argv[]) {
     }
     ctxtFile1.close();
 	clock_gettime(CLOCK_REALTIME,&ts1);
-	printf("time for server's hash keygen: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+	// printf("time for server's hash keygen: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+    total_server += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
 
     // ========================================================================================
     // CLIENT'S RHO SUMS COMPUTATION:
@@ -275,11 +279,14 @@ int main(int argc, char* argv[]) {
     }
     ctxtFile2.close();
 	clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for client reading encrypted betas */
-	printf("time to read encrypted betas: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+	// printf("time to read encrypted betas: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+    total_client += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
 
     mpf_t orig_hash;
     mpf_init(orig_hash);                                    // initialize hash_diff and set it to 0
 	for (size_t i = 1; i < argc; i++) {
+        time_t client_t_per_img = 0;
+        time_t server_t_per_img = 0;
         std::string sep = "\n======================\n\tImage " + std::to_string(i) + "\n======================";
         std::cout << sep << std::endl;
         // Modify input image argument
@@ -315,8 +322,9 @@ int main(int argc, char* argv[]) {
 		ctxtFile4.write(byteCtxt4, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
 		ctxtFile4.close();
 		clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for client inner product */
-		printf("time for client work on image %i: %li ms\n",i,
-				(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+		// printf("time for client work on image %i: %li ms\n",i,
+				// (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
 
 		// ========================================================================================
 		// SERVER'S HASH DECRYPTION
@@ -331,19 +339,20 @@ int main(int argc, char* argv[]) {
 		// printf("Image: %s\n", argv[i]);
 		paillier_plaintext_t* dec_res;
 		dec_res = paillier_dec(NULL, pu, pr, read_res);
-		clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for server decryption */
-		printf("time for server decryption of image %i: %li ms\n",i,
-				(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+		// clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for server decryption */
+		// printf("time for server decryption of image %i: %li ms\n",i,
+				// (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 		gmp_printf("Decrypted hash: %Zd\n", dec_res);
 
-        clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for server decryption in the clear*/
+        // clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for server decryption in the clear*/
 		/* CHECK W/O ENCRYPTION */
 		long long int check_hash = check_sum(betas, rho_sums);
 		std::cout << "W/o encryption: " << check_hash << std::endl;
         
         clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for server decryption in the clear*/
-        printf("time for server decryption in the clear of image %i: %li ns\n",i,
-				(ts1.tv_sec - ts0.tv_sec)*1000000000 + (ts1.tv_nsec - ts0.tv_nsec));
+        // printf("time for server decryption in the clear of image %i: %li ns\n",i,
+				// (ts1.tv_sec - ts0.tv_sec)*1000000000 + (ts1.tv_nsec - ts0.tv_nsec));
+        server_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
 
         // ========================================================================================
         // === CLIENT: ZKP OUTLINE ===
@@ -396,13 +405,14 @@ int main(int argc, char* argv[]) {
         ipc3_w.close();
         // clock_gettime(CLOCK_REALTIME,&ts1);
         // printf("time for sending Encrypted Hash to Server: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
-
+        clock_gettime(CLOCK_REALTIME,&ts1);
+        client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
         // ========================================================================================
         // SERVER: READ AND DECRYPT HASH
         // ========================================================================================
 
         /* IMPORT FROM BYTESTRINGS */
-        // clock_gettime(CLOCK_REALTIME,&ts0);
+        clock_gettime(CLOCK_REALTIME,&ts0);
         std::fstream ipc3("ipc3.txt", std::fstream::in|std::fstream::binary); // open the file
         // The length of the ciphertext is twice the length of the key
         char* char_result = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
@@ -416,8 +426,8 @@ int main(int argc, char* argv[]) {
         paillier_plaintext_t* dec_res_zkp;
         dec_res_zkp = paillier_dec(NULL, pu, pr, read_res_zkp);
         // clock_gettime(CLOCK_REALTIME,&ts1);
-        // printf("time for read anddecrypt hash: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
-        gmp_printf("Decrypted hash: %Zd\n", dec_res_zkp);
+        // printf("time for read and decrypt hash: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // gmp_printf("Decrypted hash: %Zd\n", dec_res_zkp);
 
 
         // ========================================================================================
@@ -468,7 +478,8 @@ int main(int argc, char* argv[]) {
             std::cout << "Error occurs from zkp2( mpz_out_raw)\n";
         }
         fclose(zkp2_w);
-        // clock_gettime(CLOCK_REALTIME,&ts1);
+        clock_gettime(CLOCK_REALTIME,&ts1);
+        server_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
         // printf("time for sending C to client: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
         // ========================================================================================
@@ -478,14 +489,15 @@ int main(int argc, char* argv[]) {
         *   Receive challenge integer C from server
         */
 
-        // clock_gettime(CLOCK_REALTIME,&ts0);
+        clock_gettime(CLOCK_REALTIME,&ts0);
         mpz_class read_C;
         mpz_init(read_C.get_mpz_t());
         size_t number_bytes_read;
         FILE* zkp2 = fopen("zkp2.txt","r");
         number_bytes_read = mpz_inp_raw ( read_C.get_mpz_t(), zkp2 );
         fclose(zkp2);
-        // clock_gettime(CLOCK_REALTIME,&ts1);
+        clock_gettime(CLOCK_REALTIME,&ts1);
+        client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
         // printf("time for receiving C from server: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
         // ========================================================================================
@@ -494,7 +506,7 @@ int main(int argc, char* argv[]) {
         /*
         *   Generate vector S:
         */
-        // clock_gettime(CLOCK_REALTIME,&ts0);
+        clock_gettime(CLOCK_REALTIME,&ts0);
         std::vector<mpz_class> S;
         for (int i = 0; i < arr_size; ++i) {
     
@@ -515,6 +527,11 @@ int main(int argc, char* argv[]) {
             
             S.push_back(s_i);
         }
+        clock_gettime(CLOCK_REALTIME,&ts1);
+        server_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
+        // printf("time for checking: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // printf("time for ZKP: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+
         // clock_gettime(CLOCK_REALTIME,&ts1);
         // printf("time for generating vector S: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
@@ -573,7 +590,7 @@ int main(int argc, char* argv[]) {
         *   Do the check:
         */
         // hash generated based on s_i instead of rho_sums:
-        // clock_gettime(CLOCK_REALTIME,&ts0);
+        clock_gettime(CLOCK_REALTIME,&ts0);
         paillier_ciphertext_t* hash_S = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
         // mult_and_sum(pu, hash_S, enc_betas, read_S);
         mult_and_sum(pu, hash_S, enc_betas, S);
@@ -607,8 +624,12 @@ int main(int argc, char* argv[]) {
             std::cout << "Did not pass ZKP check!" << std::endl;
         }
         clock_gettime(CLOCK_REALTIME,&ts1);
-        // printf("time for checking: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
-        printf("time for ZKP: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        server_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
+
+        printf("\ntotal time for client: %li ms", total_client + client_t_per_img);
+        printf("\ntotal time for server: %li ms\n", total_server + server_t_per_img);
+        // // printf("time for checking: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
+        // printf("time for ZKP: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
 
         /* HASH DIFFERENCE */
