@@ -17,9 +17,6 @@
 #include <math.h>
 #include <cstdlib>
 #include <stdio.h>
-#include <unistd.h>
-#include <sys/types.h>
-#include <sys/wait.h>
 #include <string.h>
 #include <random>
 #include <time.h>
@@ -153,15 +150,15 @@ long long int check_sum(std::vector<float> const &betas, std::vector<int> const 
     return sum;
 }
 
-char* change_file_name(char* path, int start) {
-    char *dir = (char *)calloc(strlen(path)+10, sizeof(char));
-    for (int i = 0; i < start; ++i) {
-        dir[i] = path[i];
-    }
-    strcat(dir, "_processed.png");
+// char* change_file_name(char* path, int start) {
+//     char *dir = (char *)calloc(strlen(path)+10, sizeof(char));
+//     for (int i = 0; i < start; ++i) {
+//         dir[i] = path[i];
+//     }
+//     strcat(dir, "_processed.png");
     
-    return dir;
-}
+//     return dir;
+// }
 
 int main(int argc, char* argv[]) {
     
@@ -178,26 +175,6 @@ int main(int argc, char* argv[]) {
         fprintf(stderr, "usage: %s <image_1> ... <image_n>\n", argv[0]);
         exit(1);
     }
-    // ============
-    //  Preprocess
-    // ============
-    int child = fork();
-    pid_t status;
-    char* myargv[100];
-    while (child == 0) {
-        int myargc = argc + 1;
-        myargv[0] = "3";
-        myargv[1] = "preprocess.py";
-        int i;
-        for (i = 2; i < myargc; ++i) {
-            myargv[i] = argv[i-1];
-        }
-        myargv[i] = NULL;
-        execvp("python3", myargv);
-        printf("EXECVP FAILED\n");
-    }
-    waitpid(child, &status, 0);
-
 
     float beta_mean = 50.0, beta_std = 10.0;
     int arr_size = 256;
@@ -292,26 +269,17 @@ int main(int argc, char* argv[]) {
         time_t server_t_per_img = 0;
         std::string sep = "\n======================\n\tImage " + std::to_string(i) + "\n======================";
         std::cout << sep << std::endl;
-        // Modify input image argument
-        char *newargv;
-        int loops = strlen(argv[i]);
-        for (int j = loops-1; j >= 0; j--) {
-            if (argv[i][j] == '.') {
-                newargv = change_file_name(argv[i], j);
-                break;
-            }
-        }
-        // printf("newargv = %s\n", newargv);
 
 		// ========================================================================================
 		// CLIENT'S ENCRYPTED MULTIPLICATION AND SUMMATION (= ENCRYPTION OF HASH)
 		// ========================================================================================
 		clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for client inner product */
-		// CImg<float> img(argv[i]);
-        CImg<float> img(newargv);
+		CImg<float> src(argv[i]);
+        CImg<float> img = get_grayscale(src);
+        img.blur(2.5);
+        img = equalizeHist(img);
 		CImg<float> polar = polar_FFT(img);
 		vector<int> rho_sums = sum_along_rho(polar);
-        free(newargv);
 
 		paillier_ciphertext_t* enc_sum_res = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
 		mult_and_sum(pu, enc_sum_res, read_betas, rho_sums);
