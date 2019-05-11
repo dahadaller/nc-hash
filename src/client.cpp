@@ -61,36 +61,35 @@ int main() {
     // ========================================================================================
     // === ZKP OUTLINE ===
     // ========================================================================================
-    /*
-    *   Compute A ~ Encryption of a hash based on random values instead of rho
-    * 
-    *   PSEUDOCODE: 
-    * 
-    *   std::vector<int> rands;
-    *   for (int i = 0; i < arr_size; ++i) {
-    *       int r = generate random integer from 1 to some n;
-    *       rands.push_back(r);
-    *   }
-    * 
-    *   paillier_ciphertext_t* A = paillier_create_enc_zero();
-    *   mult_and_sum(pu, A, read_betas, rands);
-    * 
-    */ 
+   
+    // Compute A ~ Encryption of a hash based on random values instead of rho_sum
+    vector<mpz_class> rands;
+    for (int i = 0; i < arr_size; ++i) {
+        gmp_randstate_t state;
+        gmp_randinit_mt (state);
+        mpz_class r;
+        mpz_urandomm(r.get_mpz_t(), state, pu->n);
+        rands.push_back(r);
+        mpz_clear(r.get_mpz_t()); 
+    }
+
+    paillier_ciphertext_t* A = paillier_create_enc_zero();
+    mult_and_sum(pu, A, read_betas, rands);
+    
     // ========================================================================================
-    // === ZKP ADDITIONAL IPC ===
+    // === ZKP IPC ===
     // ========================================================================================
     /*
-    *   Export A to bytestring and send it to server together with the real hash
+    *   Send A to Server
     */
-
-        // /* EXPORT TO BYTESTRING */
-        // // Open the file in "append" mode
-        // std::fstream ipc3("ipc3.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
-        // // The length of the ciphertext is twice the length of the key
-        // char* char_result = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res);
-        // ipc3.write(char_result, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-        // ipc3.close();
-
+    /* EXPORT TO BYTESTRING */
+    // Open the file in "append" mode
+    std::fstream zkp1_w("zkp1.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
+    // The length of the ciphertext is twice the length of the key
+    char* char_A_w = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, A);
+    zkp1_w.write(char_A_w, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    zkp1_w.close();
+  
     // ========================================================================================
     // SEND ENCRYPTED HASH TO SERVER
     // ========================================================================================
@@ -107,18 +106,45 @@ int main() {
     /*
     *   Receive challenge integer C from server
     */
+
+    mpz_class read_C;
+    mpz_init(read_C.get_mpz_t());
+    size_t number_bytes_read;
+    FILE* zkp2 = fopen("zkp2.txt","r");
+    number_bytes_read = mpz_inp_raw ( read_C.get_mpz_t(), zkp2 );
+    fclose(zkp2);
+
     // ========================================================================================
     // === ZKP OUTLINE ===
     // ========================================================================================
     /*
     *   Generate vector S:
-    *
-    *   std::vector<int> S;
-    *   for (int i = 0; i < arr_size; ++i) {
-    *       s_i = (rands[i]+C*rho_sums[i]) mod (pu->n);
-    *       S.push_back(s_i);
-    *   }
-    */ 
+    */
+    std::vector<mpz_class> S;
+    for (int i = 0; i < arr_size; ++i) {
+
+        mpz_class rho_mpz;
+        mpz_set_ui (rho_mpz.get_mpz_t(),  rho_sums[i]);
+
+        mpz_class C_rho;
+        mpz_init(C_rho.get_mpz_t());
+        mpz_mul(C_rho.get_mpz_t(), read_C.get_mpz_t(), rho_mpz.get_mpz_t());
+
+        mpz_clear(read_C.get_mpz_t()); 
+        mpz_clear(rho_mpz.get_mpz_t());
+
+        mpz_class sum_mpz;
+        mpz_init(sum_mpz.get_mpz_t());
+        mpz_add(sum_mpz.get_mpz_t(), rands[i].get_mpz_t(), C_rho.get_mpz_t());
+
+        mpz_clear(C_rho.get_mpz_t());
+
+        mpz_class s_i;
+        mpz_init(s_i.get_mpz_t());
+        mpz_mod(s_i.get_mpz_t(), sum_mpz.get_mpz_t(), (pu->n));
+        
+        S.push_back(s_i);
+    }
     // ========================================================================================
     // === ZKP ADDITIONAL IPC ===
     // ========================================================================================
@@ -132,8 +158,11 @@ int main() {
     close(hash_socket);
 
     paillier_freeciphertext(enc_sum_res);
+    paillier_freeciphertext(A);
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(read_betas[i]);
+        mpz_clear(S[i].get_mpz_t()); 
+        mpz_clear(rands[i].get_mpz_t());        
     }
     read_betas.clear();
     paillier_freepubkey(pu);
