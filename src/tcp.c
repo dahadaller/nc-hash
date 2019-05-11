@@ -146,7 +146,7 @@ int client_connect_to_server(void){
 
 void print_bytes(void *buf,int num_bytes){
 
-	char* charbuf = (char*)buf;
+	unsigned char* charbuf = (unsigned char*)buf;
 
 	for (int i = 0; i < num_bytes; i++){
 		printf("%02x", charbuf[i]);
