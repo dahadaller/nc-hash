@@ -300,7 +300,8 @@ void mult_and_sum(paillier_pubkey_t* pu, paillier_ciphertext_t* sum, std::vector
         paillier_ciphertext_t* enc_mult_res = paillier_create_enc_zero();
         paillier_exp( pu, enc_mult_res, e_betas[i], plain_exponent );
         paillier_mul(pu, sum, sum, enc_mult_res );
-
+    }
+}
 
 // stuff to implement beta vector--> enc beta vector --> keyfile --> enc beta vector
 // 3 functions two of which ana already defined in main.

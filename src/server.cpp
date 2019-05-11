@@ -85,100 +85,100 @@ int main() {
     zkp1.close();
 
     /* CLEANUP */
-    free(char_A);
+    // free(char_A);
 
-    // ========================================================================================
-    // === SERVER: ZKP OUTLINE ===
-    // ========================================================================================
-    /*
-    *   Create challenge request C:
-    */
-    gmp_randstate_t state;
-    gmp_randinit_mt(state);
-    mpz_class C;
-    mpz_urandomm(C.get_mpz_t(), state, pu->n);
+    // // ========================================================================================
+    // // === SERVER: ZKP OUTLINE ===
+    // // ========================================================================================
+    // /*
+    // *   Create challenge request C:
+    // */
+    // gmp_randstate_t state;
+    // gmp_randinit_mt(state);
+    // mpz_class C;
+    // mpz_urandomm(C.get_mpz_t(), state, pu->n);
 
-    // ========================================================================================
-    // === SERVER: ZKP ADDITIONAL IPC ===
-    // ========================================================================================
-    /*
-    *   Send C to client
-    */
-    FILE * zkp2_w = fopen("zkp2.txt", "w+");
-    if (mpz_out_raw (zkp2_w, C.get_mpz_t()) == 0) {
-        std::cout << "Error occurs from zkp2( mpz_out_raw)\n";
-    }
+    // // ========================================================================================
+    // // === SERVER: ZKP ADDITIONAL IPC ===
+    // // ========================================================================================
+    // /*
+    // *   Send C to client
+    // */
+    // FILE * zkp2_w = fopen("zkp2.txt", "w+");
+    // if (mpz_out_raw (zkp2_w, C.get_mpz_t()) == 0) {
+    //     std::cout << "Error occurs from zkp2( mpz_out_raw)\n";
+    // }
 
-    mpz_clear(C.get_mpz_t()); 
+    // mpz_clear(C.get_mpz_t()); 
     
-    fclose(zkp2_w);
+    // fclose(zkp2_w);
 
-    // ========================================================================================
-    /*
-    *   Receive vector S in response to C
-    */
-    // ========================================================================================
-    // === ZKP OUTLINE ===
-    // ========================================================================================
-    /*
-    *   Do the check:
-    */
-    // hash generated based on s_i instead of rho_sums:
-    paillier_ciphertext_t* hash_S = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
-    mult_and_sum(pu, hash_S, enc_betas, S);
-    paillier_plaintext_t* LHS;
-    LHS = paillier_dec(NULL, pu, pr, hash_S);
+    // // ========================================================================================
+    // /*
+    // *   Receive vector S in response to C
+    // */
+    // // ========================================================================================
+    // // === ZKP OUTLINE ===
+    // // ========================================================================================
+    // /*
+    // *   Do the check:
+    // */
+    // // hash generated based on s_i instead of rho_sums:
+    // paillier_ciphertext_t* hash_S = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
+    // mult_and_sum(pu, hash_S, enc_betas, S);
+    // paillier_plaintext_t* LHS;
+    // LHS = paillier_dec(NULL, pu, pr, hash_S);
     
-    paillier_ciphertext_t* z_C;
-    paillier_plaintext_t* plain_C = paillier_plaintext_from_ui(0);
-    mpz_set(plain_C->m, C.get_mpz_t());
-    z_C = paillier_create_enc_zero();
-    paillier_exp(pu, z_C, enc_hash, plain_C);
+    // paillier_ciphertext_t* z_C;
+    // paillier_plaintext_t* plain_C = paillier_plaintext_from_ui(0);
+    // mpz_set(plain_C->m, C.get_mpz_t());
+    // z_C = paillier_create_enc_zero();
+    // paillier_exp(pu, z_C, enc_hash, plain_C);
 
-    paillier_freeplaintext(plain_C);
+    // paillier_freeplaintext(plain_C);
 
-    // A*(z^C)modN^2:
-    paillier_ciphertext_t* prod = paillier_create_enc_zero();
-    paillier_mul(pu, prod, read_A, z_C);
+    // // A*(z^C)modN^2:
+    // paillier_ciphertext_t* prod = paillier_create_enc_zero();
+    // paillier_mul(pu, prod, read_A, z_C);
             
-    paillier_plaintext_t* RHS;
-    RHS = paillier_dec(NULL, pu, pr, prod);
+    // paillier_plaintext_t* RHS;
+    // RHS = paillier_dec(NULL, pu, pr, prod);
 
 
-    if(!mpz_cmp (LHS->m, RHS->m)) {
-        std::cout << "ZKP check passed!" << std::endl;
-    }
-    else {
-        std::cout << "Did not pass ZKP check!" << std::endl;
-    }
+    // if(!mpz_cmp (LHS->m, RHS->m)) {
+    //     std::cout << "ZKP check passed!" << std::endl;
+    // }
+    // else {
+    //     std::cout << "Did not pass ZKP check!" << std::endl;
+    // }
     
-    // ========================================================================================
+    // // ========================================================================================
 
 
-    /* HASH DIFFERENCE */
-    if (i == 1) {                                       // save the original hash value
-        mpf_set_z(orig_hash, dec_res->m);
-    }
-    else {                                              // compute difference with the original hash
-        const int precision = 512;
-        mpf_set_default_prec (precision);               // set defference precision
-        mpf_t curr_hash;
-        mpf_init(curr_hash);
-        mpf_set_z(curr_hash, dec_res->m);
-        mpf_t hash_diff;
-        mpf_init(hash_diff);                            // initialize difference to 0
-        // diff = |(old-new)/old|
-        mpf_sub(hash_diff, orig_hash, curr_hash);
-        mpf_div(hash_diff, hash_diff, orig_hash);
-        mpf_abs(hash_diff, hash_diff);
+    // /* HASH DIFFERENCE */
+    // if (i == 1) {                                       // save the original hash value
+    //     mpf_set_z(orig_hash, dec_res->m);
+    // }
+    // else {                                              // compute difference with the original hash
+    //     const int precision = 512;
+    //     mpf_set_default_prec (precision);               // set defference precision
+    //     mpf_t curr_hash;
+    //     mpf_init(curr_hash);
+    //     mpf_set_z(curr_hash, dec_res->m);
+    //     mpf_t hash_diff;
+    //     mpf_init(hash_diff);                            // initialize difference to 0
+    //     // diff = |(old-new)/old|
+    //     mpf_sub(hash_diff, orig_hash, curr_hash);
+    //     mpf_div(hash_diff, hash_diff, orig_hash);
+    //     mpf_abs(hash_diff, hash_diff);
 
-        gmp_printf("\nNormalized difference with the original: %.5Ff", hash_diff);
+    //     gmp_printf("\nNormalized difference with the original: %.5Ff", hash_diff);
 
-        mpf_t percent_diff;
-        mpf_init(percent_diff);
-        mpf_mul_ui(percent_diff, hash_diff, 100);
-        gmp_printf(" (%.1Ff %%)\n", percent_diff);
-    }
+    //     mpf_t percent_diff;
+    //     mpf_init(percent_diff);
+    //     mpf_mul_ui(percent_diff, hash_diff, 100);
+    //     gmp_printf(" (%.1Ff %%)\n", percent_diff);
+    // }
 
 
    

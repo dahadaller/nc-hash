@@ -63,7 +63,7 @@ int main() {
     // ========================================================================================
    
     // Compute A ~ Encryption of a hash based on random values instead of rho_sum
-    vector<mpz_class> rands;
+    std::vector<mpz_class> rands;
     for (int i = 0; i < arr_size; ++i) {
         gmp_randstate_t state;
         gmp_randinit_mt (state);
@@ -76,19 +76,19 @@ int main() {
     paillier_ciphertext_t* A = paillier_create_enc_zero();
     mult_and_sum(pu, A, read_betas, rands);
     
-    // ========================================================================================
-    // === ZKP IPC ===
-    // ========================================================================================
-    /*
-    *   Send A to Server
-    */
-    /* EXPORT TO BYTESTRING */
-    // Open the file in "append" mode
-    std::fstream zkp1_w("zkp1.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
-    // The length of the ciphertext is twice the length of the key
-    char* char_A_w = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, A);
-    zkp1_w.write(char_A_w, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    zkp1_w.close();
+    // // ========================================================================================
+    // // === ZKP IPC ===
+    // // ========================================================================================
+    // /*
+    // *   Send A to Server
+    // */
+    // /* EXPORT TO BYTESTRING */
+    // // Open the file in "append" mode
+    // std::fstream zkp1_w("zkp1.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
+    // // The length of the ciphertext is twice the length of the key
+    // char* char_A_w = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, A);
+    // zkp1_w.write(char_A_w, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    // zkp1_w.close();
   
     // ========================================================================================
     // SEND ENCRYPTED HASH TO SERVER
@@ -100,57 +100,57 @@ int main() {
     send_char_string(hash_socket, enc_hash_string, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
     close(hash_socket);
 
-    // ========================================================================================
-    // === ZKP ADDITIONAL IPC ===
-    // ========================================================================================
-    /*
-    *   Receive challenge integer C from server
-    */
+    // // ========================================================================================
+    // // === ZKP ADDITIONAL IPC ===
+    // // ========================================================================================
+    
+    // *   Receive challenge integer C from server
+    
 
-    mpz_class read_C;
-    mpz_init(read_C.get_mpz_t());
-    size_t number_bytes_read;
-    FILE* zkp2 = fopen("zkp2.txt","r");
-    number_bytes_read = mpz_inp_raw ( read_C.get_mpz_t(), zkp2 );
-    fclose(zkp2);
+    // mpz_class read_C;
+    // mpz_init(read_C.get_mpz_t());
+    // size_t number_bytes_read;
+    // FILE* zkp2 = fopen("zkp2.txt","r");
+    // number_bytes_read = mpz_inp_raw ( read_C.get_mpz_t(), zkp2 );
+    // fclose(zkp2);
 
-    // ========================================================================================
-    // === ZKP OUTLINE ===
-    // ========================================================================================
-    /*
-    *   Generate vector S:
-    */
-    std::vector<mpz_class> S;
-    for (int i = 0; i < arr_size; ++i) {
+    // // ========================================================================================
+    // // === ZKP OUTLINE ===
+    // // ========================================================================================
+    // /*
+    // *   Generate vector S:
+    // */
+    // std::vector<mpz_class> S;
+    // for (int i = 0; i < arr_size; ++i) {
 
-        mpz_class rho_mpz;
-        mpz_set_ui (rho_mpz.get_mpz_t(),  rho_sums[i]);
+    //     mpz_class rho_mpz;
+    //     mpz_set_ui (rho_mpz.get_mpz_t(),  rho_sums[i]);
 
-        mpz_class C_rho;
-        mpz_init(C_rho.get_mpz_t());
-        mpz_mul(C_rho.get_mpz_t(), read_C.get_mpz_t(), rho_mpz.get_mpz_t());
+    //     mpz_class C_rho;
+    //     mpz_init(C_rho.get_mpz_t());
+    //     mpz_mul(C_rho.get_mpz_t(), read_C.get_mpz_t(), rho_mpz.get_mpz_t());
 
-        mpz_clear(read_C.get_mpz_t()); 
-        mpz_clear(rho_mpz.get_mpz_t());
+    //     mpz_clear(read_C.get_mpz_t()); 
+    //     mpz_clear(rho_mpz.get_mpz_t());
 
-        mpz_class sum_mpz;
-        mpz_init(sum_mpz.get_mpz_t());
-        mpz_add(sum_mpz.get_mpz_t(), rands[i].get_mpz_t(), C_rho.get_mpz_t());
+    //     mpz_class sum_mpz;
+    //     mpz_init(sum_mpz.get_mpz_t());
+    //     mpz_add(sum_mpz.get_mpz_t(), rands[i].get_mpz_t(), C_rho.get_mpz_t());
 
-        mpz_clear(C_rho.get_mpz_t());
+    //     mpz_clear(C_rho.get_mpz_t());
 
-        mpz_class s_i;
-        mpz_init(s_i.get_mpz_t());
-        mpz_mod(s_i.get_mpz_t(), sum_mpz.get_mpz_t(), (pu->n));
+    //     mpz_class s_i;
+    //     mpz_init(s_i.get_mpz_t());
+    //     mpz_mod(s_i.get_mpz_t(), sum_mpz.get_mpz_t(), (pu->n));
         
-        S.push_back(s_i);
-    }
-    // ========================================================================================
-    // === ZKP ADDITIONAL IPC ===
-    // ========================================================================================
-    /*
-    *   Send vector S to server
-    */
+    //     S.push_back(s_i);
+    // }
+    // // ========================================================================================
+    // // === ZKP ADDITIONAL IPC ===
+    // // ========================================================================================
+    // /*
+    // *   Send vector S to server
+    // */
 
 
      /* CLEANUP AND SOCKET CLOSE*/
@@ -161,7 +161,7 @@ int main() {
     paillier_freeciphertext(A);
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(read_betas[i]);
-        mpz_clear(S[i].get_mpz_t()); 
+        // mpz_clear(S[i].get_mpz_t()); 
         mpz_clear(rands[i].get_mpz_t());        
     }
     read_betas.clear();
