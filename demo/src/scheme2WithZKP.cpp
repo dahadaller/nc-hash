@@ -388,14 +388,14 @@ int main(int argc, char* argv[]) {
         // The length of the ciphertext is twice the length of the key
         char* char_result = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
         ipc3.read(char_result, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-        paillier_ciphertext_t* read_res_zkp = paillier_ciphertext_from_bytes((void*)char_result, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+        paillier_ciphertext_t* read_hash = paillier_ciphertext_from_bytes((void*)char_result, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
         ipc3.close();
 
         /* CLEANUP */
         free(char_result);
 
         paillier_plaintext_t* dec_res_zkp;
-        dec_res_zkp = paillier_dec(NULL, pu, pr, read_res_zkp);
+        dec_res_zkp = paillier_dec(NULL, pu, pr, read_hash);
         // clock_gettime(CLOCK_REALTIME,&ts1);
         // printf("time for read and decrypt hash: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
         // gmp_printf("Decrypted hash: %Zd\n", dec_res_zkp);
@@ -572,7 +572,7 @@ int main(int argc, char* argv[]) {
         paillier_plaintext_t* plain_C = paillier_plaintext_from_ui(0);
         mpz_set(plain_C->m, C.get_mpz_t());
         z_C = paillier_create_enc_zero();
-        paillier_exp(pu, z_C, read_res_zkp, plain_C);
+        paillier_exp(pu, z_C, read_hash, plain_C);
 
         paillier_freeplaintext(plain_C);
 
@@ -641,7 +641,7 @@ int main(int argc, char* argv[]) {
         paillier_freeciphertext(enc_sum_res);
         paillier_freeciphertext(read_res);
         paillier_freeplaintext(dec_res);
-        paillier_freeciphertext(read_res_zkp);
+        paillier_freeciphertext(read_hash);
         paillier_freeplaintext(dec_res_zkp);
         paillier_freeciphertext(A);
         paillier_freeciphertext(read_A);
