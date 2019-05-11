@@ -2,6 +2,7 @@
 pubkey.txt
 ciphertext.txt
 *.txt
+*.key
 
 #executables
 client

@@ -39,11 +39,13 @@ Download and extract the `.tar.gz` file under the "Paillier Libary" heading of t
 
 ### Compilation
 
+#### On Mac:
 To Compile our application, navigate to the `public-phash/src/` directory and run the following two commands:
 
 ```bash
-g++ -o server ncphserver.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a
-g++ -o client ncphclient.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread
+g++ -o client client.cpp /usr/local/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11 -fpermissive
+
+g++ -o server server.cpp /usr/local/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11 -fpermissive
 ```
 
 Note that if `libgmp.a` or `libpaillier.a` are located anywhere other than the directories specified above, you will have to modify the arguments of the commands to match their locations on your own system.
@@ -53,6 +55,7 @@ Note that if `libgmp.a` or `libpaillier.a` are located anywhere other than the d
 ## Running the Application
 
 Navigate to the `public-phash/src/` in two separate terminal windows. In one, run `./server` and in the other, run `./client`. The server should generate a public and private key, transmit the public key to the the client, at which point the client calculates the hash and send the response back to the server.
+
 
 
 
