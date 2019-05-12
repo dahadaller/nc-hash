@@ -63,6 +63,8 @@ int main() {
     // RECEIVE ENCRYPTED HASH AND RANDOM HASH (A) FROM CLIENT
     // ========================================================================================
         
+    // TRUE HASH FROM CLIENT
+
     int listening_socket =  server_init();
     int tcp_socket = server_connect_to_client(listening_socket);
 
@@ -76,8 +78,8 @@ int main() {
 
     // RANDOM HASH (A) FROM CLIENT
     
-    // The length of the ciphertext is twice the length of the key
-    char* enc_A_string = receive_char_string(tcp_socket);
+    char* enc_A_string = receive_char_string(tcp_socket); // The length of the ciphertext is twice the length of the key
+
     printf("\n random hash recieved: ");///
     print_bytes(enc_A_string,256);///
 
@@ -85,34 +87,44 @@ int main() {
     paillier_plaintext_t* A = paillier_dec(NULL, pu, pr, enc_A);
     gmp_printf("\ndecrypted hash: %Zd\n", A);///
 
+    // ========================================================================================
+    // GENERATE, SEND, AND RECEIVE CHALLENGE BIT C 
+    // ========================================================================================
 
-    /* CLEANUP */
-    // free(enc_A_string);
+    // Generate C, random no. between 0 and paillier key modulus
 
-    // // ========================================================================================
-    // // === SERVER: ZKP OUTLINE ===
-    // // ========================================================================================
-    // /*
-    // *   Create challenge request C:
-    // */
-    // gmp_randstate_t state;
-    // gmp_randinit_mt(state);
-    // mpz_class C;
-    // mpz_urandomm(C.get_mpz_t(), state, pu->n);
+    gmp_randstate_t state;
+    gmp_randinit_mt(state);
+    mpz_class C;
+    mpz_urandomm(C.get_mpz_t(), state, pu->n);
+    
+    // Serialize C from mpz to byte string
 
-    // // ========================================================================================
-    // // === SERVER: ZKP ADDITIONAL IPC ===
-    // // ========================================================================================
-    // /*
-    // *   Send C to client
-    // */
+    //mpz_size returns size in "limbs" which are 32 or 64 bit increments. 
+    // I'm on a 64 bit system, so I think that  multiplying the no. limbs
+    // by 8 should give the no. bytes.
+    // TODO: this may be a source of error
+
+    size_t C_string_length = mpz_size(C.get_mpz_t()) * 8; 
+    size_t * len_ptr = &C_string_length;
+
+    unsigned char* C_string = (unsigned char*)malloc((C_string_length) * sizeof(unsigned char));
+
+    bytes_from_mpz(C_string, len_ptr, (const) C.get_mpz_t());
+    print_bytes(C_string,C_string_length);
+    printf("why not working?\n");
+
+
+
+    // PseudoCode:
+    //1. 
     // FILE * zkp2_w = fopen("zkp2.txt", "w+");
     // if (mpz_out_raw (zkp2_w, C.get_mpz_t()) == 0) {
     //     std::cout << "Error occurs from zkp2( mpz_out_raw)\n";
     // }
 
-    // mpz_clear(C.get_mpz_t()); 
-    
+
+    // mpz_clear(C.get_mpz_t());     
     // fclose(zkp2_w);
 
     // // ========================================================================================
@@ -192,13 +204,16 @@ int main() {
     paillier_freeciphertext(enc_hash);
     paillier_freeplaintext(hash);
     paillier_freeciphertext(enc_A);
+    paillier_freeplaintext(A);
+
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(enc_betas[i]);
     }
     enc_betas.clear();
     paillier_freepubkey(pu);
     paillier_freeprvkey(pr);
-    
+    free(enc_A_string);
+
     return 0;
 
 }

@@ -183,6 +183,39 @@ void xwrite(int fd, const void *buf, size_t nBytes)
 	} while (nBytes);
 }
 
+void mpz_from_bytes(mpz_class& r, const unsigned char* inBuf, size_t l)
+{
+	mpz_import(r.get_mpz_t(),l,-1,1,0,0,inBuf);
+}
+
+void bytes_from_mpz(unsigned char*& outBuf, size_t* l, const mpz_class& n)
+{
+	outBuf = (unsigned char*)mpz_export(outBuf,l,-1,1,0,0,n.get_mpz_t());
+	/*
+	the function prototype:
+	void * mpz_export (
+	    void *rop, 
+	    size_t *countp, 
+	    int order, 
+	    size_t size, 
+	    int endian, 
+	    size_t nails, 
+	    const mpz_t op
+	    )
+
+	our arguments explained:
+	mpz_export(
+		void *rop = outBuf, //this is the bytestring being written to (an output)
+		size_t *countp = l, //count tells you the  is the number of WORDS of 'size' number of bytes that have been written (output)
+		int order= -1, //order tells you whether it's most significant or least significant WORD first (-1 means it's least significant word first)
+		size_t size = 1,//number of bytes each word corresponds to. each word is 1 byte in this case
+		int endian=0, //inside each word, you can set whether its most significant BYTE first or least significant. Here it's least significant first.
+		size_t nails = 0, //the first `nails` bits of each word are unused and set to zero. in this case no bits are set to zero
+		const mpz_t op = n.get_mpz_t() //op is the source of our mpz data
+	)
+
+	*/
+}
 
 //sends message, blocks for response. 
 // will loop indefinitely without no recipient response
