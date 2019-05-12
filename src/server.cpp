@@ -44,8 +44,9 @@ int main() {
     // WRITE THE PUBLIC PAILLIER KEY TO FILE (DO ONCE)
     // ========================================================================================
     char* hex_pk = paillier_pubkey_to_hex(pu);
-    printf("public key written: %s\n",hex_pk);
     write_paillier_key_file(hex_pk);
+    printf("paillier.key initialized\n");
+
     
     // ========================================================================================
     // WRITE BETA ARRAY ENCRYPTION TO FILE (DO ONCE)
@@ -55,37 +56,38 @@ int main() {
     get_rho_beta_arr(rho_num, betas, min_rho, max_rho, beta_mean, beta_std);
     std::vector<paillier_ciphertext_t*> enc_betas = encrypt_betas(betas, pu);
     write_enc_betas_to_key_file(enc_betas, pu);
+    printf("betas.key initialized\n");
+
 
     // ========================================================================================
-    // Receive Hash Over TCP
+    // RECEIVE ENCRYPTED HASH AND RANDOM HASH (A) FROM CLIENT
     // ========================================================================================
         
     int listening_socket =  server_init();
-    int hash_socket = server_connect_to_client(listening_socket);
+    int tcp_socket = server_connect_to_client(listening_socket);
 
-    char* enc_hash_string = receive_char_string(hash_socket);
+    char* enc_hash_string = receive_char_string(tcp_socket);
+    printf("\nencrypted hash recieved: ");///
+    print_bytes(enc_hash_string,256);///
 
     paillier_ciphertext_t* enc_hash = paillier_ciphertext_from_bytes((void*)enc_hash_string, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
     paillier_plaintext_t* hash = paillier_dec(NULL, pu, pr, enc_hash);
-    gmp_printf("Decrypted hash: %Zd\n", hash);
+    gmp_printf("\ndecrypted hash: %Zd\n", hash);///
 
-    // ========================================================================================
-    // === ZKP ADDITIONAL IPC ===
-    // ========================================================================================
-    /*
-    *   Receive and import the A from bytestring along with the real hash.
-    */
-
-    /* IMPORT FROM BYTESTRINGS */
-    std::fstream zkp1("zkp1.txt", std::fstream::in|std::fstream::binary); // open the file
+    // RANDOM HASH (A) FROM CLIENT
+    
     // The length of the ciphertext is twice the length of the key
-    char* char_A = (char*)malloc(PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    zkp1.read(char_A, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    paillier_ciphertext_t* read_A = paillier_ciphertext_from_bytes((void*)char_A, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    zkp1.close();
+    char* enc_A_string = receive_char_string(tcp_socket);
+    printf("\n random hash recieved: ");///
+    print_bytes(enc_A_string,256);///
+
+    paillier_ciphertext_t* enc_A = paillier_ciphertext_from_bytes((void*)enc_A_string, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    paillier_plaintext_t* A = paillier_dec(NULL, pu, pr, enc_A);
+    gmp_printf("\ndecrypted hash: %Zd\n", A);///
+
 
     /* CLEANUP */
-    // free(char_A);
+    // free(enc_A_string);
 
     // // ========================================================================================
     // // === SERVER: ZKP OUTLINE ===
@@ -139,7 +141,7 @@ int main() {
 
     // // A*(z^C)modN^2:
     // paillier_ciphertext_t* prod = paillier_create_enc_zero();
-    // paillier_mul(pu, prod, read_A, z_C);
+    // paillier_mul(pu, prod, enc_A, z_C);
             
     // paillier_plaintext_t* RHS;
     // RHS = paillier_dec(NULL, pu, pr, prod);
@@ -185,11 +187,11 @@ int main() {
     /* CLEANUP AND SOCKET CLOSURE*/
 
     close(listening_socket);
-    close(hash_socket);
+    close(tcp_socket);
 
     paillier_freeciphertext(enc_hash);
     paillier_freeplaintext(hash);
-    paillier_freeciphertext(read_A);
+    paillier_freeciphertext(enc_A);
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(enc_betas[i]);
     }

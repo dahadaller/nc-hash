@@ -32,7 +32,7 @@ int main() {
 
     CImg<float> polar = polar_FFT(img);
 
-    float *message1 = sum_along_rho1(polar);
+    // float *message1 = sum_along_rho1(polar);
     std::vector<int> rho_sums = sum_along_rho(polar);
 
 
@@ -70,36 +70,38 @@ int main() {
         mpz_class r;
         mpz_urandomm(r.get_mpz_t(), state, pu->n);
         rands.push_back(r);
-        mpz_clear(r.get_mpz_t()); 
+        // mpz_clear(r.get_mpz_t()); 
     }
 
     paillier_ciphertext_t* A = paillier_create_enc_zero();
     mult_and_sum(pu, A, read_betas, rands);
+
+    /* EXPORT TO BYTESTRING */
+    char* char_A_w = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, A);
+
     
-    // // ========================================================================================
-    // // === ZKP IPC ===
-    // // ========================================================================================
-    // /*
-    // *   Send A to Server
-    // */
-    // /* EXPORT TO BYTESTRING */
-    // // Open the file in "append" mode
-    // std::fstream zkp1_w("zkp1.txt", std::fstream::out|std::fstream::trunc|std::fstream::binary);
-    // // The length of the ciphertext is twice the length of the key
-    // char* char_A_w = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, A);
-    // zkp1_w.write(char_A_w, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    // zkp1_w.close();
+    // ========================================================================================
+    // === ZKP TCP ===
+    // ========================================================================================
   
     // ========================================================================================
-    // SEND ENCRYPTED HASH TO SERVER
+    // SEND ENCRYPTED HASH AND RANDOM HASH A TO SERVER
     // ========================================================================================
 
     char* enc_hash_string = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res);
-    int hash_socket =  client_connect_to_server();
-    printf("paillier bytes: %d\n",PAILLIER_BITS_TO_BYTES(pu->bits)*2 );
-    send_char_string(hash_socket, enc_hash_string, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
-    close(hash_socket);
+    int tcp_socket =  client_connect_to_server();
+    send_char_string(tcp_socket, enc_hash_string, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
 
+    printf("\nencrypted hash sent: ");///
+    print_bytes(enc_hash_string,256);///
+
+    // ========================================================================================    
+    // SEND A TO SERVER
+    // ========================================================================================
+
+    send_char_string(tcp_socket, char_A_w, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
+    printf("\n random hash (A) sent: ");///
+    print_bytes(char_A_w,256);///
     // // ========================================================================================
     // // === ZKP ADDITIONAL IPC ===
     // // ========================================================================================
@@ -155,17 +157,15 @@ int main() {
 
      /* CLEANUP AND SOCKET CLOSE*/
 
-    close(hash_socket);
+    close(tcp_socket);
 
     paillier_freeciphertext(enc_sum_res);
     paillier_freeciphertext(A);
     for (int i = 0; i < arr_size; ++i) {
         paillier_freeciphertext(read_betas[i]);
-        // mpz_clear(S[i].get_mpz_t()); 
-        mpz_clear(rands[i].get_mpz_t());        
     }
-    read_betas.clear();
     paillier_freepubkey(pu);
+    free(enc_hash_string);
 
     return 0;
 

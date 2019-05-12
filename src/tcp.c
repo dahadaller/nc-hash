@@ -175,7 +175,6 @@ void xwrite(int fd, const void *buf, size_t nBytes)
 {
 	do {
 		ssize_t n = write(fd, buf, nBytes);
-		printf("number of bytes written by xwrite: %d\n", n);
 		if (n < 0 && errno == EINTR) continue;
 		if (n < 0 && errno == EWOULDBLOCK) continue;
 		if (n < 0) perror("write"), abort();
@@ -191,11 +190,8 @@ void xwrite(int fd, const void *buf, size_t nBytes)
 
 void send_char_string(int recipient_socket_fd, char* message, int32_t message_len){
 
-	printf("hash length (bytes): %d\n",message_len);
 	xwrite(recipient_socket_fd,&message_len,4);
 	xwrite(recipient_socket_fd,message,message_len);
-	printf("hash sent:\n");
-	print_bytes(message,message_len);
 }
 
 
@@ -204,13 +200,9 @@ char* receive_char_string(int sender_socket_fd){
 
 	int32_t message_len;
 	xread(sender_socket_fd,&message_len,4);
-	printf("hash length (bytes):%d\n", message_len);
 	// char message[message_len];
 	char* message = (char*)malloc((message_len) * sizeof(char));
 	xread(sender_socket_fd,message,message_len);
-	printf("hash received: ");
-	print_bytes(message, message_len);
-
 	return message;
 }
 
