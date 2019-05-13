@@ -106,15 +106,19 @@ int main() {
     // // === ZKP ADDITIONAL IPC ===
     // // ========================================================================================
     
-    // *   Receive challenge integer C from server
-    
+    // Receive challenge integer C from server
+    mpz_class read_C;
+    mpz_init(read_C.get_mpz_t());
+    size_t number_bytes_read;
+    number_bytes_read = *((size_t*)receive_char_string(tcp_socket)); //TODO: need to convert from network byte order before reading
+    printf("\nnumber of bytes read:%zu\n", number_bytes_read);
 
-    // mpz_class read_C;
-    // mpz_init(read_C.get_mpz_t());
-    // size_t number_bytes_read;
-    // FILE* zkp2 = fopen("zkp2.txt","r");
-    // number_bytes_read = mpz_inp_raw ( read_C.get_mpz_t(), zkp2 );
-    // fclose(zkp2);
+    // allocate C as char string and 
+    unsigned char* C_string = (unsigned char*)malloc((number_bytes_read) * sizeof(unsigned char));
+    C_string = receive_char_string(tcp_socket);
+    mpz_from_bytes(read_C, C_string, number_bytes_read);
+
+    gmp_printf("received challnge bit vector: %Zd\n",read_C.get_mpz_t());
 
     // // ========================================================================================
     // // === ZKP OUTLINE ===

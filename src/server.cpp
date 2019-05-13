@@ -93,27 +93,24 @@ int main() {
 
     // Generate C, random no. between 0 and paillier key modulus
 
-    gmp_randstate_t state;
-    gmp_randinit_mt(state);
+    gmp_randstate_t state; 
+    gmp_randinit_mt(state); 
     mpz_class C;
     mpz_urandomm(C.get_mpz_t(), state, pu->n);
     
-    // Serialize C from mpz to byte string
-
-    //mpz_size returns size in "limbs" which are 32 or 64 bit increments. 
-    // I'm on a 64 bit system, so I think that  multiplying the no. limbs
-    // by 8 should give the no. bytes.
-    // TODO: this may be a source of error
-
-    size_t C_string_length = mpz_size(C.get_mpz_t()) * 8; 
+    //find number of bytes needed to allocate C
+    size_t C_string_length = mpz_size(C.get_mpz_t()) * sizeof(mp_limb_t); 
     size_t * len_ptr = &C_string_length;
 
+    //allocate C as char string and 
     unsigned char* C_string = (unsigned char*)malloc((C_string_length) * sizeof(unsigned char));
+    bytes_from_mpz(C_string, len_ptr, C);///
 
-    bytes_from_mpz(C_string, len_ptr, (const) C.get_mpz_t());
-    print_bytes(C_string,C_string_length);
-    printf("why not working?\n");
+    send_char_string(tcp_socket, (char*)len_ptr, sizeof(size_t));//need to convert to network byte order before sending
+    send_char_string(tcp_socket, C_string, C_string_length);
 
+    printf("\nnumber of bytes sent: %lu",C_string_length);
+    gmp_printf("sending challenge bit vector: %Zd\n",C.get_mpz_t());
 
 
     // PseudoCode:
