@@ -1,6 +1,6 @@
 Makefile
 demo
-scheme2
+scheme2-demo
 
 # VS Code #
 .vscode
