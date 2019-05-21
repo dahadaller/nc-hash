@@ -25,13 +25,13 @@ using std::vector;
 #include <gmpxx.h>
 #include <gmp.h>
 #include <fstream>
-#include"assert.h"
+#include <assert.h>
 
 extern "C" {
     #include <gmp.h>
     #include <paillier.h>
 }
-#include "client.hpp"
+#include "client.h"
 
 int get_rand_index(int const &size) {
     /* PRE: accepts the size of the array for which random index is needed, must be positive int
@@ -264,7 +264,7 @@ int main(int argc, char* argv[]) {
 
     mpf_t orig_hash;
     mpf_init(orig_hash);                                    // initialize hash_diff and set it to 0
-	for (size_t i = 1; i < argc; i++) {
+	for (int i = 1; i < argc; i++) {
         time_t client_t_per_img = 0;
         time_t server_t_per_img = 0;
         std::string sep = "\n======================\n\tImage " + std::to_string(i) + "\n======================";
@@ -273,16 +273,18 @@ int main(int argc, char* argv[]) {
 		// ========================================================================================
 		// CLIENT'S ENCRYPTED MULTIPLICATION AND SUMMATION (= ENCRYPTION OF HASH)
 		// ========================================================================================
-		clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for client inner product */
-		CImg<float> src(argv[i]);
-        CImg<float> img = get_grayscale(src);
-        img.blur(2.5);
-        img = equalizeHist(img);
-		CImg<float> polar = polar_FFT(img);
-		vector<int> rho_sums = sum_along_rho(polar);
+		clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for client preprocessing */
+		vector<int> rho_sums = preproc_radial_sums(argv[i]);
+		clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for client preprocessing */
+        client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
 
+		clock_gettime(CLOCK_REALTIME,&ts0); /* start clock for client inner product */
 		paillier_ciphertext_t* enc_sum_res = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
 		mult_and_sum(pu, enc_sum_res, read_betas, rho_sums);
+		clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for client inner product */
+        client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
+		printf("time for client inner product on image %i: %li ms\n",i,
+				(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 		/* EXPORT TO BYTESTRING */
 		std::ofstream ctxtFile3;
 		ctxtFile3.open("ciphertext.txt", std::ofstream::out | std::ofstream::trunc);
@@ -292,10 +294,9 @@ int main(int argc, char* argv[]) {
 		char* byteCtxt4 = (char*)paillier_ciphertext_to_bytes(PAILLIER_BITS_TO_BYTES(pu->bits)*2, enc_sum_res);
 		ctxtFile4.write(byteCtxt4, PAILLIER_BITS_TO_BYTES(pu->bits)*2);
 		ctxtFile4.close();
-		clock_gettime(CLOCK_REALTIME,&ts1); /* stop clock for client inner product */
 		// printf("time for client work on image %i: %li ms\n",i,
 				// (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
-        client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
+        // client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
 
 		// ========================================================================================
 		// SERVER'S HASH DECRYPTION
@@ -341,7 +342,11 @@ int main(int argc, char* argv[]) {
         }
 
         paillier_ciphertext_t* A = paillier_create_enc_zero();
+		clock_gettime(CLOCK_REALTIME,&ts0);
         mult_and_sum(pu, A, read_betas, rands);
+		clock_gettime(CLOCK_REALTIME,&ts1);
+        client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
+        printf(":::time for computing A: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
         // clock_gettime(CLOCK_REALTIME,&ts1);
         // printf("time for computing A: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
 
@@ -376,8 +381,8 @@ int main(int argc, char* argv[]) {
         ipc3_w.close();
         // clock_gettime(CLOCK_REALTIME,&ts1);
         // printf("time for sending Encrypted Hash to Server: %li ms\n",(ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000);
-        clock_gettime(CLOCK_REALTIME,&ts1);
-        client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
+        // clock_gettime(CLOCK_REALTIME,&ts1);
+        // client_t_per_img += (ts1.tv_sec - ts0.tv_sec)*1000 + (ts1.tv_nsec - ts0.tv_nsec)/1000000;
         // ========================================================================================
         // SERVER: READ AND DECRYPT HASH
         // ========================================================================================

@@ -1,0 +1,45 @@
+SOURCES := $(wildcard *.c *.cpp)
+OBJECTS := $(SOURCES:.c=.o)
+OBJECTS := $(OBJECTS:.cpp=.o)
+HEADERS := $(wildcard *.h *.hpp)
+OBJEXTR := @LIBPAI@
+
+COMMON   := -O2 -Wall -Wformat=2 -march=native -std=c++11
+CFLAGS   := $(COMMON) @CFLAGS@   $(CFLAGS)
+CXXFLAGS := $(COMMON) @CXXFLAGS@ $(CXXFLAGS)
+CC       := @CC@
+CXX      := @CXX@
+LD       := @LD@
+LDFLAGS  := @LDFLAGS@ $(LDFLAGS)
+LDADD    := -lX11 -lgmp -lm -lpthread -lGraphicsMagick
+INCLUDE  := @LPAICPPFLAGS@ @CIMGCPPFLAGS@ @CPPFLAGS@
+DEFS     := 
+
+TARGET   := scheme2-demo
+
+.PHONY : all
+all : $(TARGET)
+
+# {{{ for debugging
+DBGFLAGS := -g
+debug : CFLAGS += $(DBGFLAGS)
+debug : CXXFLAGS += $(DBGFLAGS)
+debug : all
+.PHONY : debug
+# }}}
+
+$(TARGET) : $(OBJECTS) $(OBJEXTR)
+	$(LD) $(LDFLAGS) -o $@ $^ $(LDADD)
+
+%.o : %.cpp $(HEADERS)
+	$(CXX) $(DEFS) $(INCLUDE) $(CXXFLAGS) -c $< -o $@
+
+%.o : %.c $(HEADERS)
+	$(CC) $(DEFS) $(INCLUDE) $(CFLAGS) -c $< -o $@
+
+.PHONY : clean
+clean :
+	rm -f $(TARGET) $(OBJECTS)
+
+# vim:ft=make:foldmethod=marker:foldmarker={{{,}}}
+
