@@ -20,6 +20,12 @@
 #include "ncph.hpp"
 
 int main() {
+
+    //declaring S vector
+    //TODO: make arr_size, along with other parameters that have to be agreed upon ahead of time
+    // by both the client and the server part of a config file, so that it can be updated easily.
+    // Obviously do not expose anything that ought to be part of a secret key in the config files.
+
     /* PARAMETERS & CONSTRAINTS: 
         * beta_mean - real number
         * beta_std - real number, beta_std > 0
@@ -30,7 +36,7 @@ int main() {
         * paillier_n = security parameter, number os bits in the modulo, integer; currently, has to be multiple of 4 for ease of inter-process communication
     */
 
-   float beta_mean = 50.0, beta_std = 10.0;
+    float beta_mean = 50.0, beta_std = 10.0;
     int arr_size = 256;
     int max_rho = 255, min_rho = 60;
     int rho_num = 3;
@@ -113,85 +119,78 @@ int main() {
     gmp_printf("sending challenge bit vector: %Zd\n",C.get_mpz_t());
 
 
-    // PseudoCode:
-    //1. 
-    // FILE * zkp2_w = fopen("zkp2.txt", "w+");
-    // if (mpz_out_raw (zkp2_w, C.get_mpz_t()) == 0) {
-    //     std::cout << "Error occurs from zkp2( mpz_out_raw)\n";
-    // }
+////////
+    /*
+    *   Receive vector S in response to C
+    */
 
 
-    // mpz_clear(C.get_mpz_t());     
-    // fclose(zkp2_w);
+    std::vector<mpz_class> S;
+    size_t number_bytes_read = 0;
 
-    // // ========================================================================================
-    // /*
-    // *   Receive vector S in response to C
-    // */
-    // // ========================================================================================
-    // // === ZKP OUTLINE ===
-    // // ========================================================================================
-    // /*
-    // *   Do the check:
-    // */
-    // // hash generated based on s_i instead of rho_sums:
-    // paillier_ciphertext_t* hash_S = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
-    // mult_and_sum(pu, hash_S, enc_betas, S);
-    // paillier_plaintext_t* LHS;
-    // LHS = paillier_dec(NULL, pu, pr, hash_S);
+    for (int i = 0; i < arr_size; ++i){
+
+        //receive_mpz_t(tcp_socket,S[i]);
+        //TODO: replace all code below with the function call on above line
+        mpz_class S_i; 
+        mpz_init(S_i.get_mpz_t());
+
+        number_bytes_read = *((size_t*)receive_char_string(tcp_socket)); //TODO: need to convert from network byte order before reading
+        unsigned char* S_i_string = (unsigned char*)malloc((number_bytes_read) * sizeof(unsigned char));
+
+        S_i_string = receive_char_string(tcp_socket);
+        mpz_from_bytes(S_i, S_i_string, number_bytes_read);
+        S.push_back(S_i);
+
+        free(S_i_string);
+        // mpz_clear(S_i.get_mpz_t()); 
+        //TODO: Does mpz_class clear itself when going out of scope of for loop or 
+        // after returning? We avoided the double clear for the vector by just letting C++
+        // take care of the vector once server.cpp ended. However, does the same thing that
+        // goes for a vector of mpz types go for individually declared mpz_class or mpz_t 
+        // variables?
+        // according to this stackoverflow postL https://stackoverflow.com/questions/10159522/what-happens-if-i-dont-use-mpz-clear-in-gmp
+        // I should be clearing it, so what gives?
+    }
+
+
+////////
+
+    // ========================================================================================
+    // === ZKP OUTLINE ===
+    // ========================================================================================
+    /*
+    *   Do the check:
+    */
+    // hash generated based on s_i instead of rho_sums:
+    paillier_ciphertext_t* hash_S = paillier_create_enc_zero(); // initiate a zero-valued ciphertext to hold the result 
+    mult_and_sum(pu, hash_S, enc_betas, S);
+    paillier_plaintext_t* LHS;
+    LHS = paillier_dec(NULL, pu, pr, hash_S);
     
-    // paillier_ciphertext_t* z_C;
-    // paillier_plaintext_t* plain_C = paillier_plaintext_from_ui(0);
-    // mpz_set(plain_C->m, C.get_mpz_t());
-    // z_C = paillier_create_enc_zero();
-    // paillier_exp(pu, z_C, enc_hash, plain_C);
+    paillier_ciphertext_t* z_C;
+    paillier_plaintext_t* plain_C = paillier_plaintext_from_ui(0);
+    mpz_set(plain_C->m, C.get_mpz_t());
+    z_C = paillier_create_enc_zero();
+    paillier_exp(pu, z_C, enc_hash, plain_C);
 
-    // paillier_freeplaintext(plain_C);
+    paillier_freeplaintext(plain_C);
 
-    // // A*(z^C)modN^2:
-    // paillier_ciphertext_t* prod = paillier_create_enc_zero();
-    // paillier_mul(pu, prod, enc_A, z_C);
+    // A*(z^C)modN^2:
+    paillier_ciphertext_t* prod = paillier_create_enc_zero();
+    paillier_mul(pu, prod, enc_A, z_C);
             
-    // paillier_plaintext_t* RHS;
-    // RHS = paillier_dec(NULL, pu, pr, prod);
+    paillier_plaintext_t* RHS;
+    RHS = paillier_dec(NULL, pu, pr, prod);
 
 
-    // if(!mpz_cmp (LHS->m, RHS->m)) {
-    //     std::cout << "ZKP check passed!" << std::endl;
-    // }
-    // else {
-    //     std::cout << "Did not pass ZKP check!" << std::endl;
-    // }
+    if(!mpz_cmp (LHS->m, RHS->m)) {
+        std::cout << "ZKP check passed!" << std::endl;
+    }
+    else {
+        std::cout << "Did not pass ZKP check!" << std::endl;
+    }
     
-    // // ========================================================================================
-
-
-    // /* HASH DIFFERENCE */
-    // if (i == 1) {                                       // save the original hash value
-    //     mpf_set_z(orig_hash, dec_res->m);
-    // }
-    // else {                                              // compute difference with the original hash
-    //     const int precision = 512;
-    //     mpf_set_default_prec (precision);               // set defference precision
-    //     mpf_t curr_hash;
-    //     mpf_init(curr_hash);
-    //     mpf_set_z(curr_hash, dec_res->m);
-    //     mpf_t hash_diff;
-    //     mpf_init(hash_diff);                            // initialize difference to 0
-    //     // diff = |(old-new)/old|
-    //     mpf_sub(hash_diff, orig_hash, curr_hash);
-    //     mpf_div(hash_diff, hash_diff, orig_hash);
-    //     mpf_abs(hash_diff, hash_diff);
-
-    //     gmp_printf("\nNormalized difference with the original: %.5Ff", hash_diff);
-
-    //     mpf_t percent_diff;
-    //     mpf_init(percent_diff);
-    //     mpf_mul_ui(percent_diff, hash_diff, 100);
-    //     gmp_printf(" (%.1Ff %%)\n", percent_diff);
-    // }
-
-
    
     /* CLEANUP AND SOCKET CLOSURE*/
 
@@ -214,6 +213,3 @@ int main() {
     return 0;
 
 }
-
-/* Compiling command for MacOS */
-// g++ -o server ncphserver.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a
