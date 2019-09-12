@@ -36,31 +36,6 @@ public class Main extends Application {
             e.printStackTrace();
         }
     }
-
-    /**
-     * Shows Bon's code. This is the debug window
-     */
-    public void showDebugScreen(){
-        try{
-            FXMLLoader loader = new FXMLLoader();
-            loader.setLocation(Main.class.getResource("view/Sample.fxml"));
-
-            Controller controller = new Controller();
-            loader.setController(controller);
-
-            BorderPane debugScreenView = (BorderPane)loader.load();
-            Scene scene = new Scene(debugScreenView);
-            //Gives a reference to the primary stage.
-            controller.setMainApp(this);
-            primaryStage.setScene(scene);
-            primaryStage.show();
-
-        }catch (Exception e){
-            e.printStackTrace();
-        }
-
-    }
-
     public Stage getPrimaryStage() {
         return primaryStage;
     }
