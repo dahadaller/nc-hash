@@ -13,7 +13,9 @@ import java.io.File;
 import java.io.FileNotFoundException;
 
 /**
- * Test comment
+ * This is the main controller. It contains all the functionality
+ * need for the application to fun. It contains the view and the
+ * event functions.
  */
 public class MainController {
     private final static String defaultUploadImage = "file:src/com/nchash/images/drag_and_drop_image.gif";
