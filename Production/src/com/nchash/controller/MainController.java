@@ -12,7 +12,9 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.FileNotFoundException;
 
-
+/**
+ * Test comment
+ */
 public class MainController {
     private final static String defaultUploadImage = "file:src/com/nchash/images/drag_and_drop_image.gif";
 
