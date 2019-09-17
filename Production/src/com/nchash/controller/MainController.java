@@ -2,6 +2,7 @@ package com.nchash.controller;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
@@ -17,6 +18,8 @@ public class MainController {
 
     @FXML
     private ImageView mainImageView;
+    @FXML
+    private Label pathToFileLabel;
 
     /**
      * Initializes the controller class. This method is automatically called
@@ -107,6 +110,7 @@ public class MainController {
      */
     private void setDefaultUploadImage(String pathToFile){
         mainImageView.setImage(new Image(pathToFile));
+        pathToFileLabel.setText(pathToFile);
     }
 
 }
