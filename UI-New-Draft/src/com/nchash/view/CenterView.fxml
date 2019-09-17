@@ -36,6 +36,7 @@
                            preserveRatio="true"/>
                 <Button fx:id="upLoadPhotoBtn" mnemonicParsing="false" onAction="#handleUploadBtn"
                         styleClass="bg-primary" text="Upload Photo"/>
+                <Label fx:id="pathToFileLabel" text="path to file" />
             </children>
         </VBox>
     </center>

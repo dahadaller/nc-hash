@@ -2,6 +2,7 @@ package com.nchash.view;
 
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.DragEvent;
@@ -13,12 +14,14 @@ import java.io.FileNotFoundException;
 
 
 public class CenterViewController {
-    private final static String defaultUploadImage = "file:src/com/nchash/images/drag_and_drop_image.gif";
+    private final static String defaultUploadImage = "file:com/nchash/images/drag_and_drop_image.gif";
     // Reference to the main application.
     private Main mainApp;
 
     @FXML
     private ImageView mainImageView;
+    @FXML
+    private Label pathToFileLabel;
 
     public CenterViewController() {
         System.out.println("Hello from CenterViewController");
@@ -124,7 +127,9 @@ public class CenterViewController {
      * @param pathToFile
      */
     private void setDefaultUploadImage(String pathToFile){
+
         mainImageView.setImage(new Image(pathToFile));
+        pathToFileLabel.setText(pathToFile);
     }
 
 }
