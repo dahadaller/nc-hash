@@ -98,7 +98,7 @@ public class MainController {
      * @return
      */
     private String getPathToImageDragAndDrop(DragEvent event){
-        StringBuilder pathToImage = new StringBuilder("File:");
+        StringBuilder pathToImage = new StringBuilder("FUCKER");
         pathToImage.append(event.getDragboard().getFiles().get(0));
         event.consume();
         return pathToImage.toString();
