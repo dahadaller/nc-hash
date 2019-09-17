@@ -20,14 +20,18 @@ public class CenterViewController {
     @FXML
     private ImageView mainImageView;
 
+    public CenterViewController() {
+        System.out.println("Hello from CenterViewController");
+    }
+
     /**
      * Initializes the controller class. This method is automatically called
      * after the fxml file has been loaded.
      */
     @FXML
     public void initialize(){
-       setDefaultUploadImage(defaultUploadImage);
-
+        System.out.println("Initializing Center View");
+        setDefaultUploadImage(defaultUploadImage);
     }
 
     /**

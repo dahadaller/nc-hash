@@ -103,6 +103,7 @@ public class Main extends Application {
         this.primaryStage.setTitle("AddressApp");
 
         initRootLayout();
+        showMainApplication();
 
 //        showPersonOverview();
     }
