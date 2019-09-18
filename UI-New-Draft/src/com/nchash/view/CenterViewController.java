@@ -14,7 +14,7 @@ import java.io.FileNotFoundException;
 
 
 public class CenterViewController {
-    private final static String defaultUploadImage = "file:com/nchash/images/drag_and_drop_image.gif";
+    private final static String defaultUploadImage = "file:src/com/nchash/images/drag_and_drop_image.gif";
     // Reference to the main application.
     private Main mainApp;
 
