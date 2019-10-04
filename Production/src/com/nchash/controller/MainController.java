@@ -162,7 +162,10 @@ public class MainController {
     public void handleUploadBtn(){
         String pathToFile = openFileExplorer();
         if(pathToFile != null){
-            mainImage = new Image(pathToFile);
+            if (!centerVBox.getChildren().contains(hashButton)){
+                centerVBox.getChildren().add(hashButton);
+            }
+            mainImage = new Image(pathToFile, width, height, true, false);
             setCurrentImage(mainImage);
         }
     }
