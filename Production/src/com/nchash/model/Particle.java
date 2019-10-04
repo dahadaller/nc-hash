@@ -6,6 +6,11 @@ import javafx.geometry.Point2D;
 import javafx.scene.canvas.GraphicsContext;
 import javafx.scene.paint.Color;
 
+/**
+ * Contains information for the pixels of the image.
+ * X Y positions, Velocity, and alpha.
+ *
+ */
 public class Particle {
     private DoubleProperty x = new SimpleDoubleProperty();
     private DoubleProperty y = new SimpleDoubleProperty();
@@ -13,11 +18,18 @@ public class Particle {
     private boolean active = false;
 
     // Velocity for each particle.
+    // Allows us to change the x and y positions by a small amount.
     private Point2D velocity = Point2D.ZERO;
 
     // Value for the alpha
     private double life = 1.0;
 
+    /**
+     * Constructor for Particle.
+     * @param x
+     * @param y
+     * @param color
+     */
     public Particle(int x, int y, Color color){
         this.x.set(x);
         this.y.set(y);
@@ -57,7 +69,7 @@ public class Particle {
     }
 
     /**
-     * Lets us draw the particle.
+     * Lets us draw the particle on the GraphicsContext g.
      * @param g
      */
     public void draw(GraphicsContext g){
@@ -87,6 +99,13 @@ public class Particle {
         return active;
     }
 
+
+    /**
+     * If the particle itself isn't active, theres nothing to update. The function simply returns.
+     * Each time the update function is called. The life variable (alpha) of the particle is slowly decreased
+     * until it reaches zero.
+     * A new x and y position is given based on the current x and y position plus the newly added velocity.
+     */
     public void update(){
         if (!active){
             return;
