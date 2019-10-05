@@ -32,7 +32,7 @@ public class MainController {
     private double height = 300.0;
     private double width  = 500.0;
 
-    private final static String defaultUploadImage = "file:src/com/nchash/images/drag_and_drop_image.gif";
+    private final static String defaultUploadImage = "file:src/com/nchash/images/drag_and_drop_image.jpg";
     private Image uploadImage = new Image(defaultUploadImage, width, height, true, false);
     private Image mainImage;
 
@@ -81,7 +81,7 @@ public class MainController {
                     @Override
                     public void handle(long now) {
                         update();
-                        if (isImageDead()){
+                        if (particleList.isEmpty()){
                             this.stop();
                             g.setGlobalAlpha(1.0);
                             setCurrentImage(uploadImage);
@@ -142,6 +142,7 @@ public class MainController {
 
     /**
      * Checks if every pixel in the particle list is dead.
+     * Function isn't used, but I may need it later.
      * @return boolean
      */
     private boolean isImageDead(){
@@ -178,11 +179,11 @@ public class MainController {
      */
     private String openFileExplorer(){
         FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Open File Explorer");
-        File imageFile = fileChooser.showOpenDialog(null);
-        if(imageFile != null){
+        fileChooser.setTitle("File Explorer");
+        File file = fileChooser.showOpenDialog(null);
+        if(isImageFile(file) && file != null){
             StringBuilder pathToFile = new StringBuilder("file:");
-            pathToFile.append(imageFile.getAbsolutePath());
+            pathToFile.append(file.getAbsolutePath());
             return pathToFile.toString();
         }
         return null;
@@ -216,9 +217,16 @@ public class MainController {
             if (!centerVBox.getChildren().contains(hashButton)){
                 centerVBox.getChildren().add(hashButton);
             }
+            String pathToFile = getPathToImageDragAndDrop(event);
+            if (pathToFile != null){
+                mainImage = new Image(getPathToImageDragAndDrop(event), width, height, true, false);
+                setCurrentImage(mainImage);
 
-            mainImage = new Image(getPathToImageDragAndDrop(event), width, height, true, false);
-            setCurrentImage(mainImage);
+            }else {
+                setCurrentImage(null);
+                centerVBox.getChildren().remove(hashButton);
+
+            }
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -233,9 +241,14 @@ public class MainController {
      */
     private String getPathToImageDragAndDrop(DragEvent event){
         StringBuilder pathToImage = new StringBuilder("File:");
-        pathToImage.append(event.getDragboard().getFiles().get(0));
-        event.consume();
-        return pathToImage.toString();
+        File file = event.getDragboard().getFiles().get(0);
+        if (isImageFile(file)){
+            pathToImage.append(event.getDragboard().getFiles().get(0));
+            event.consume();
+            return pathToImage.toString();
+        }
+        return null;
+
     }
 
     /**
@@ -251,11 +264,15 @@ public class MainController {
         if (image == null){
             return;
         }
-
         g.clearRect(0,0, width , height);
-
         g.drawImage(image, 0,0, image.getWidth(), image.getHeight());
         pathToFileLabel.setText(image.getUrl());
+    }
+
+    private boolean isImageFile(File file){
+        return file.getAbsolutePath().toLowerCase().endsWith(".png") ||
+                file.getAbsolutePath().toLowerCase().endsWith(".img") ||
+                file.getAbsolutePath().toLowerCase().endsWith(".jpg");
     }
 
 }
