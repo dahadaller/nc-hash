@@ -269,6 +269,11 @@ public class MainController {
         pathToFileLabel.setText(image.getUrl());
     }
 
+    /**
+     * Checks if the file is an image.
+     * @param file
+     * @return true if file is an image, false if not.
+     */
     private boolean isImageFile(File file){
         return file.getAbsolutePath().toLowerCase().endsWith(".png") ||
                 file.getAbsolutePath().toLowerCase().endsWith(".img") ||
