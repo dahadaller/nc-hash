@@ -22,10 +22,6 @@ public class Main extends Application {
         primaryStage.setWidth(700);
 
         showMainApplication();
-//
-//        Scene scene = new Scene(createContent());
-//        primaryStage.setScene(scene);
-//        primaryStage.show();
     }
 
     public void showMainApplication(){
@@ -42,16 +38,6 @@ public class Main extends Application {
             e.printStackTrace();
         }
     }
-//    Testing code for thanos effect on image. Ignore...... for now.
-//    private GraphicsContext g;
-//    private Parent createContent(){
-//        Pane root = new Pane();
-//        Canvas canvas = new Canvas(300, 500);
-//        root.getChildren().add(canvas);
-//        g = canvas.getGraphicsContext2D();
-//        Image image = new Image("file:src/com/nchash/images/armor.jpg");
-//        return root;
-//    }
     public Stage getPrimaryStage() {
         return primaryStage;
     }
