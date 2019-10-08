@@ -268,24 +268,40 @@ long long int check_sum(std::vector<float> const &betas, std::vector<int> const 
     return sum;
 }
 
-void mult_and_sum( paillier_pubkey_t* pu, paillier_ciphertext_t* sum, std::vector<paillier_ciphertext_t*> const &e_betas, std::vector<int> const &rho_sums) {
-    /* PRE: Paillier AHE function accepts vector of ciphertexts(initialized with encryption of zero) for result, and betas, the corresponding vector of ints for rho sums, and the public key
-        POST: Stores the encryption of sum of rho*beta products in the sum argument*/
 
-    assert(e_betas.size() == rho_sums.size());              // assert all three input vectors are same size
+void mult_and_sum( paillier_pubkey_t* pu, paillier_ciphertext_t* sum, std::vector<paillier_ciphertext_t*> const &e_betas, std::vector<int> const &exponent) {
+    /* PRE: Paillier AHE function accepts vector of ciphertexts(initialized with encryption of zero) for result, and betas, the corresponding vector of ints for exponent, and the public key
+        POST: Stores the encryption of sum of exponent*beta products in the sum argument*/
+
+    assert(e_betas.size() == exponent.size());              // assert all three input vectors are same size
     int limit = e_betas.size();
     for(int i = 0; i < limit; ++i) {                        // computing dot product = sum((ciphertext[i] * plaintext[i])):
-        paillier_plaintext_t* plain_rho_sum = paillier_plaintext_from_ui((int)rho_sums[i]);
+        paillier_plaintext_t* plain_exponent = paillier_plaintext_from_ui((int)exponent[i]);
         paillier_ciphertext_t* enc_mult_res = paillier_create_enc_zero();
-        paillier_exp( pu, enc_mult_res, e_betas[i], plain_rho_sum );
+        paillier_exp( pu, enc_mult_res, e_betas[i], plain_exponent );
         paillier_mul(pu, sum, sum, enc_mult_res );
 
         /* CLEANUP */
-        paillier_freeplaintext(plain_rho_sum);
+        paillier_freeplaintext(plain_exponent);
         paillier_freeciphertext(enc_mult_res);
     }
 }
 
+void mult_and_sum(paillier_pubkey_t* pu, paillier_ciphertext_t* sum, std::vector<paillier_ciphertext_t*> const &e_betas, std::vector<mpz_class> const &exponent) {
+    /* PRE: Paillier AHE function accepts vector of ciphertexts(initialized with encryption of zero) for result, and betas, the corresponding vector of mpz_class for the exponent, and the public key
+        POST: Stores the encryption of sum of exponent*beta products in the sum argument*/
+
+    assert(e_betas.size() == exponent.size());              // assert all three input vectors are same size
+    int limit = e_betas.size();
+    for(int i = 0; i < limit; ++i) {                        // computing dot product = sum((ciphertext[i] * plaintext[i])):
+
+        paillier_plaintext_t* plain_exponent = paillier_plaintext_from_ui(0);
+        mpz_set (plain_exponent->m,exponent[i].get_mpz_t());
+        paillier_ciphertext_t* enc_mult_res = paillier_create_enc_zero();
+        paillier_exp( pu, enc_mult_res, e_betas[i], plain_exponent );
+        paillier_mul(pu, sum, sum, enc_mult_res );
+    }
+}
 
 // stuff to implement beta vector--> enc beta vector --> keyfile --> enc beta vector
 // 3 functions two of which ana already defined in main.

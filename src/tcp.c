@@ -146,7 +146,7 @@ int client_connect_to_server(void){
 
 void print_bytes(void *buf,int num_bytes){
 
-	char* charbuf = (char*)buf;
+	unsigned char* charbuf = (unsigned char*)buf;
 
 	for (int i = 0; i < num_bytes; i++){
 		printf("%02x", charbuf[i]);
@@ -175,7 +175,6 @@ void xwrite(int fd, const void *buf, size_t nBytes)
 {
 	do {
 		ssize_t n = write(fd, buf, nBytes);
-		printf("number of bytes written by xwrite: %d\n", n);
 		if (n < 0 && errno == EINTR) continue;
 		if (n < 0 && errno == EWOULDBLOCK) continue;
 		if (n < 0) perror("write"), abort();
@@ -184,18 +183,50 @@ void xwrite(int fd, const void *buf, size_t nBytes)
 	} while (nBytes);
 }
 
+void mpz_from_bytes(mpz_class& r, const unsigned char* inBuf, size_t l)
+{
+	mpz_import(r.get_mpz_t(),l,-1,1,0,0,inBuf);
+
+}
+
+
+void bytes_from_mpz(unsigned char*& outBuf, size_t* l, const mpz_class& n)
+{
+	outBuf = (unsigned char*)mpz_export(outBuf,l,-1,1,0,0,n.get_mpz_t());
+	/*
+	the function prototype:
+	void * mpz_export (
+	    void *rop, 
+	    size_t *countp, 
+	    int order, 
+	    size_t size, 
+	    int endian, 
+	    size_t nails, 
+	    const mpz_t op
+	    )
+
+	our arguments explained:
+	mpz_export(
+		void *rop = outBuf, //this is the bytestring being written to (an output)
+		size_t *countp = l, //count tells you the  is the number of WORDS of 'size' number of bytes that have been written (output)
+		int order= -1, //order tells you whether it's most significant or least significant WORD first (-1 means it's least significant word first)
+		size_t size = 1,//number of bytes each word corresponds to. each word is 1 byte in this case
+		int endian=0, //inside each word, you can set whether its most significant BYTE first or least significant. Here it's least significant first.
+		size_t nails = 0, //the first `nails` bits of each word are unused and set to zero. in this case no bits are set to zero
+		const mpz_t op = n.get_mpz_t() //op is the source of our mpz data
+	)
+
+	*/
+}
 
 //sends message, blocks for response. 
 // will loop indefinitely without no recipient response
-//re implement with forks
+//TODO: re-implement with forks
 
 void send_char_string(int recipient_socket_fd, char* message, int32_t message_len){
 
-	printf("hash length (bytes): %d\n",message_len);
 	xwrite(recipient_socket_fd,&message_len,4);
 	xwrite(recipient_socket_fd,message,message_len);
-	printf("hash sent:\n");
-	print_bytes(message,message_len);
 }
 
 
@@ -204,15 +235,12 @@ char* receive_char_string(int sender_socket_fd){
 
 	int32_t message_len;
 	xread(sender_socket_fd,&message_len,4);
-	printf("hash length (bytes):%d\n", message_len);
 	// char message[message_len];
 	char* message = (char*)malloc((message_len) * sizeof(char));
 	xread(sender_socket_fd,message,message_len);
-	printf("hash received: ");
-	print_bytes(message, message_len);
-
 	return message;
 }
+
 
 // ========================================================================================
 // KeyFile Read and Write Utilities
@@ -232,7 +260,7 @@ char* receive_char_string(int sender_socket_fd){
 // the client will have the keyfiles as part it's installation files and the server will hve a
 // copy locally (since it generated the public keys in the first place.)
 
-//what is the input type of the key itself? Is it void?
+//TODO: what is the input type of the key itself? Is it void?
 void write_paillier_key_file(void* key){
 
 	char* file_path = "./paillier.key";
@@ -276,60 +304,3 @@ paillier_pubkey_t* read_paillier_key_file(void){
 	return paillier_pubkey_from_hex(return_key);
 }
 
-// int send_char_string(int recipient_socket_fd, char* message, int message_len){
-
-// 	char recipient_response[message_len];
-// 	char* expected_response = (char*)malloc((message_len+1) * sizeof(char));
-// 	strcpy(expected_response, "message received.\n"); //TODO: may need to use strncopy 
-// 	//char expected_response[message_len] = "message received.\n";
-
-// 	while(TRUE){
-
-// 		write(recipient_socket_fd, message, message_len);
-// 		printf("message sent:\n%s\n", message);
-
-// 		bzero(recipient_response, message_len); 
-// 		read(recipient_socket_fd, recipient_response, message_len);
-
-// 		if ((strcmp(recipient_response, expected_response)) == 0) { 
-// 			printf("message was confirmed as received.\n"); 
-// 			return 0; 
-// 		} 
-// 	} 
-
-// }
-
-
-// //recieves a character string and then returns a confirmation to sender
-// char* receive_char_string(int sender_socket_fd, int message_len){
-
-// 	char* received_message = (char*)malloc((message_len+1) * sizeof(char));
-
-// 	char* confirmation = (char*)malloc((message_len+1) * sizeof(char));
-// 	strcpy(confirmation, "message received.\n"); //TODO: may need to use strncopy 
-
-// 	char endOfTransmission;
-
-// 	while (TRUE) { 
-
-// 		bzero(received_message, message_len); 
-
-// 		// get message from client; copy it to received_message buffer 
-// 		read(sender_socket_fd, received_message, message_len); 
-// 		printf("message received:\n%s\n", received_message);
-
-// 		// and send that confirmation message to client 
-// 		write(sender_socket_fd, confirmation, message_len); //may want to replace with rec or send avoid problems in large filetypes
-
-// 		// if client string contains "\n" then server exit and chat ended.
-// 		//endOfTransmission = received_message[strlen(received_message)-1]; 
-// 		endOfTransmission = received_message[message_len-1]; 
-// 		if (strcmp("\n", &endOfTransmission) == 0) { 
-// 			printf("server quitting\n"); 
-// 			break; 
-// 		}
-// 	} 
-
-// 	free(confirmation);
-// 	return received_message;
-// }
