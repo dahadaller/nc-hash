@@ -17,7 +17,7 @@
     For any questions, you may contact NCP-Hash Group via opening an issue on https://github.com/ncp-hash/public-phash/issues
 */
 
-#include "ncph.hpp"
+#include "ncph.h"
 
 
 //TODO: Where should I put this function? It uses c++ classes (gmp) and it uses the 
