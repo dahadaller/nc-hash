@@ -43,7 +43,7 @@ extern "C" {
 #include <string>
 #include <cstring>
 
-#define cimg_display 0
+// #define cimg_display 0
 #define BETA_SIZE 256 //each beta is 256 bytes
 #define NUM_BETAS 256 //there are 256 betas in total
 #define PAILLIER_KEY_SIZE 256 //this is 256 bytes
@@ -52,13 +52,18 @@ using namespace cimg_library;
 
 CImg<float> get_grayscale(CImg<float> src);
 
-CImg<float> apply_filter(CImg<float> img, CImg<float> kernel);
+// Calculate the histogram for a grayscaled image.
+std::vector<int> img_histogram(CImg<float> src);
 
-int cdf(CImg<float> I, int x);
+CImg<float> equalizeHist(CImg<float> img);
 
-CImg<int> get_cdf_matrix(CImg<float> img);
+// CImg<float> apply_filter(CImg<float> img, CImg<float> kernel);
 
-int get_min(CImg<int> CDF);
+// int cdf(CImg<float> I, int x);
+
+// CImg<int> get_cdf_matrix(CImg<float> img);
+
+// int get_min(CImg<int> CDF);
 
 // CImg<int> hist_equl(CImg<float> img) {
 //     CImg<int> cdf_matrix = get_cdf_matrix(img);
@@ -89,6 +94,7 @@ float* sum_along_rho1(CImg<float> polar_magnitude);
 
 std::vector<int> sum_along_rho(CImg<float> polar_magnitude);
 
+std::vector<int> preproc_radial_sums(char* filename);
 
 int get_rand_index(int const &size);
 

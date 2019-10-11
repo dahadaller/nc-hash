@@ -64,21 +64,30 @@
 
 // }
 
-int main() {
+using std::vector;
+
+int main(int argc, char* argv[]) {
 
     // ========================================================================================
     // GENERATING RHO_SUMS
     // ========================================================================================
 
-    CImg<float> src("../img/GrayLenna.bmp");
-    CImg<float> img = get_grayscale(src);
-    CImg<float> low_pass_filter(9, 9, 1, 1, 1.0/9.0);
-    img = apply_filter(img, low_pass_filter);
+    if (argc < 2) {
+        fprintf(stderr, "usage: %s <image_1> ... <image_n>\n", argv[0]);
+        exit(1);
+    }
 
-    CImg<float> polar = polar_FFT(img);
+    // CImg<float> src("../img/GrayLenna.bmp");
+    // CImg<float> img = get_grayscale(src);
+    // CImg<float> low_pass_filter(9, 9, 1, 1, 1.0/9.0);
+    // img = apply_filter(img, low_pass_filter);
 
-    // float *message1 = sum_along_rho1(polar);
-    std::vector<int> rho_sums = sum_along_rho(polar);
+    // CImg<float> polar = polar_FFT(img);
+
+    // // float *message1 = sum_along_rho1(polar);
+    // std::vector<int> rho_sums = sum_along_rho(polar);
+
+    vector<int> rho_sums = preproc_radial_sums(argv[1]);
 
 
     /* PARAMETERS & CONSTRAINTS: 

@@ -70,56 +70,122 @@ CImg<float> get_grayscale(CImg<float> src) {
     return img;
 }
 
-CImg<float> apply_filter(CImg<float> img, CImg<float> kernel) {
-    return img.get_convolve(kernel);
-}
-
-int cdf(CImg<float> I, int x) {
-    int p = 0;
-    int cols = I.width();
-    int rows = I.height();
-
-    for (int i = 0; i < cols; i++) {
-        for (int j = 0; j < rows; j++) {
-            if (I(i, j) <= x) p += 1;
-        }
+// Calculate the histogram for a grayscaled image.
+std::vector<int> img_histogram(CImg<float> src) {
+    std::vector<int> hist(256, 0);
+    // CImg built in loop
+    cimg_forXY(src, x, y) {
+        ++hist[src(x, y)];
     }
-
-    return p;
+    return hist;
 }
 
-CImg<int> get_cdf_matrix(CImg<float> img) {
-    int cols = img.width();
-    int rows = img.height();
-    CImg<int> cdf_matrix(cols, rows, 1, 1, 0);
-    // CImg<float> meanfilter(7,7,1,1,1);
+CImg<float> equalizeHist(CImg<float> img) {
+    int L = 256;
+    int w = img.width();
+    int h = img.height();
+    int dimension = w * h;
 
+    std::vector<int> hist = img_histogram(img);
+    std::vector<int> equl;
     int count = 0;
-    for (int i = 0; i < cols; i++) {
-        for (int j = 0; j < rows; j++) {
-            cdf_matrix(i, j) = cdf(img, img(i, j));
-            std::cout << count++ << "\t" << "Working...\n";
+    float temp;
+
+    // Find the minimum non-zero value of the cdf
+    int cdf_min;
+    for (int i = 0, len = hist.size(); i < len; ++i) {
+        if (hist[i] != 0) {
+            cdf_min = hist[i];
+        }
+    }
+
+    for (int i = 0, len = hist.size(); i < len; ++i) {
+        count += hist[i];
+        temp = (count - cdf_min)*(L-1)*1.0/ ((dimension - cdf_min) * 1.0);
+        equl.push_back((int)temp);
+    }
+
+    CImg<float> res(w, h, 1, 1, 0);
+    // CImg built in loop
+    cimg_forXY(res, x, y) {
+        // calculate histogram equalization result
+		res(x, y, 0) = (float)equl[(int)img(x, y)];
+    }
+
+    if ( w != 512 || h != 512) {
+        if (w > h) {
+            int x0 = w/2 - h/2,
+                y0 = 0,
+                z0 = 0, c0 = 0,
+                x1 = w/2 + h/2,
+                y1 = h,
+                z1 = 0, c1 = 0;
+            res.crop(x0, y0, z0, c0, x1, y1, z1, c1);
+        } else if (w < h) {
+            int x0 = 0,
+                y0 = h/2 - w/2,
+                z0 = 0, c0 = 0,
+                x1 = w,
+                y1 = h/2 + 2/2,
+                z1 = 0, c1 = 0;
+            res.crop(x0, y0, z0, c0, x1, y1, z1, c1);
+        }
+        res.resize(512, 512);
+    }
+    
+	return res;
+}
+
+// CImg<float> apply_filter(CImg<float> img, CImg<float> kernel) {
+//     return img.get_convolve(kernel);
+// }
+
+// int cdf(CImg<float> I, int x) {
+//     int p = 0;
+//     int cols = I.width();
+//     int rows = I.height();
+
+//     for (int i = 0; i < cols; i++) {
+//         for (int j = 0; j < rows; j++) {
+//             if (I(i, j) <= x) p += 1;
+//         }
+//     }
+
+//     return p;
+// }
+
+// CImg<int> get_cdf_matrix(CImg<float> img) {
+//     int cols = img.width();
+//     int rows = img.height();
+//     CImg<int> cdf_matrix(cols, rows, 1, 1, 0);
+//     // CImg<float> meanfilter(7,7,1,1,1);
+
+//     int count = 0;
+//     for (int i = 0; i < cols; i++) {
+//         for (int j = 0; j < rows; j++) {
+//             cdf_matrix(i, j) = cdf(img, img(i, j));
+//             std::cout << count++ << "\t" << "Working...\n";
             
-        }
-    }
+//         }
+//     }
 
-    return cdf_matrix;
-}
+//     return cdf_matrix;
+// }
 
-int get_min(CImg<int> CDF) {
-    int min = CDF(0, 0);
+// int get_min(CImg<int> CDF) {
+//     int min = CDF(0, 0);
 
-    int w = CDF.width();
-    int h = CDF.height();
+//     int w = CDF.width();
+//     int h = CDF.height();
 
-    for (int i = 0; i < w; ++i) {
-        for (int j = 0; j < h; ++j) {
-            if (min > CDF(i, j)) min = CDF(i, j);
-        }
-    }
+//     for (int i = 0; i < w; ++i) {
+//         for (int j = 0; j < h; ++j) {
+//             if (min > CDF(i, j)) min = CDF(i, j);
+//         }
+//     }
 
-    return min;
-}
+//     return min;
+// }
 
 // CImg<int> hist_equl(CImg<float> img) {
 //     CImg<int> cdf_matrix = get_cdf_matrix(img);
@@ -194,6 +260,15 @@ std::vector<int> sum_along_rho(CImg<float> polar_magnitude) {
     }
 
     return res;
+}
+
+std::vector<int> preproc_radial_sums(char* filename) {
+	CImg<float> src(filename);
+	CImg<float> img = get_grayscale(src);
+	img.blur(2.5);
+	img = equalizeHist(img);
+	CImg<float> polar = polar_FFT(img);
+	return sum_along_rho(polar);
 }
 
 
