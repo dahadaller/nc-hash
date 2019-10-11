@@ -8,6 +8,7 @@ ciphertext.txt
 client
 server
 *.out
+*.o
 
 # VS Code #
 .vscode

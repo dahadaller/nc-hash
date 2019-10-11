@@ -20,6 +20,11 @@
 */
 
 #include "ncph.h"
+#include <gmpxx.h>
+
+extern "C" {
+    //#include <paillier.h>
+}
 // #include "CImg.h"
 // #include <cstdlib>
 // #include <math.h>

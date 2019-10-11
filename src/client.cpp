@@ -18,6 +18,7 @@
 */
 
 #include "ncph.h"
+#include "tcp.h"
 
 
 //TODO: Where should I put this function? It uses c++ classes (gmp) and it uses the 

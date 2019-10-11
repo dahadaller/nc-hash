@@ -19,6 +19,9 @@
     https://github.com/ncp-hash/public-phash/issues
 */
 
+#ifndef NCPH
+#define NCPH
+
 #include "CImg.h"
 #include <cstdlib>
 #include <math.h>
@@ -31,9 +34,9 @@
 #include <sstream>
 #include "assert.h"
 extern "C" {
-    #include <gmp.h>
+    // #include <gmp.h>
     #include <paillier.h>
-    #include "tcp.c"
+    // #include "tcp.h"
 }
 #include <chrono>
 #include <thread>
@@ -119,3 +122,4 @@ std::vector<paillier_ciphertext_t*> read_enc_betas_from_key_file(paillier_pubkey
 const char* beta_vector_enc_to_c_str(std::vector<float> betas, paillier_pubkey_t* pu);
 
 const char* enc_beta_vector_to_c_str(std::vector<paillier_ciphertext_t*> enc_betas, paillier_pubkey_t* pu);
+#endif
