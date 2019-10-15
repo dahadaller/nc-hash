@@ -37,7 +37,7 @@
 int min(int first, int second){
 
 	if(first<second) return first;
-	else if(first>=second) return second;
+	else return second;
 }
 
 int server_init(void){

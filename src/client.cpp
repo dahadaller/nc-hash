@@ -173,7 +173,7 @@ int main(int argc, char* argv[]) {
 
     // allocate C as char string and receive challenge bit
     unsigned char* C_string = (unsigned char*)malloc((number_bytes_read) * sizeof(unsigned char));
-    C_string = receive_char_string(tcp_socket);
+    C_string = (unsigned char*)receive_char_string(tcp_socket);
     mpz_from_bytes(read_C, C_string, number_bytes_read);
 
     gmp_printf("received challnge bit vector: %Zd\n",read_C.get_mpz_t());
@@ -238,7 +238,7 @@ int main(int argc, char* argv[]) {
         bytes_from_mpz(S_i_string, len_ptr, S[i]);///
 
         send_char_string(tcp_socket, (char*)len_ptr, sizeof(size_t));//need to convert to network byte order before sending
-        send_char_string(tcp_socket, S_i_string, S_i_string_length);
+        send_char_string(tcp_socket, (char*)S_i_string, S_i_string_length);
 
         // free(S_i_string);
     }

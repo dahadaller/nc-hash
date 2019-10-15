@@ -31,7 +31,9 @@
 #include <errno.h>
 #include <gmp.h>
 #include <gmpxx.h>
-#include <paillier.h>
+extern "C" {
+	#include <paillier.h>
+}
 
 int min(int first, int second);
 
