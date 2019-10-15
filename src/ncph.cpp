@@ -92,7 +92,7 @@ CImg<float> equalizeHist(CImg<float> img) {
     float temp;
 
     // Find the minimum non-zero value of the cdf
-    int cdf_min;
+    int cdf_min = 0;
     for (int i = 0, len = hist.size(); i < len; ++i) {
         if (hist[i] != 0) {
             cdf_min = hist[i];
