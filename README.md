@@ -124,8 +124,12 @@ g++ -o client client.cpp /usr/local/lib/libpaillier.a -lm -lgmp -lpthread -lX11 
 g++ -o server server.cpp /usr/local/lib/libpaillier.a -lm -lgmp -lpthread -lX11 -fpermissive
 ```
 
+## For MacOS
 
-
+```
+g++ -o client client.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11 -fpermissive
+g++ -o server server.cpp /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11 -fpermissive
+```
 
 
 ## Running the Application
