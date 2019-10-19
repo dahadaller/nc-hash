@@ -275,9 +275,10 @@ public class MainController {
      * @return true if file is an image, false if not.
      */
     private boolean isImageFile(File file){
-        return file.getAbsolutePath().toLowerCase().endsWith(".png") ||
-                file.getAbsolutePath().toLowerCase().endsWith(".img") ||
-                file.getAbsolutePath().toLowerCase().endsWith(".jpg");
+        String filePath = file.getAbsolutePath().toLowerCase();
+        return  filePath.endsWith(".png") ||
+                filePath.endsWith(".img") ||
+                filePath.endsWith(".jpg");
     }
 
 }
