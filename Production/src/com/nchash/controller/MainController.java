@@ -1,6 +1,7 @@
 package com.nchash.controller;
 
 import com.nchash.model.Particle;
+import com.nchash.view.CppHook;
 import javafx.animation.AnimationTimer;
 import javafx.event.Event;
 import javafx.event.EventHandler;
@@ -163,6 +164,12 @@ public class MainController {
     public void handleUploadBtn(){
         String pathToFile = openFileExplorer();
         if(pathToFile != null){
+
+            CppHook cpp = new CppHook();
+            System.out.println("CppHook Declaration Successful.");
+            cpp.printMsg("YAYYY NATIVE CODE!!!!"); //TODO: DON"T FORGET THIS
+            System.out.println(cpp.please_work("This message passes through C++"));
+
             if (!centerVBox.getChildren().contains(hashButton)){
                 centerVBox.getChildren().add(hashButton);
             }
