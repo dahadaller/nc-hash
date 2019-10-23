@@ -37,3 +37,14 @@ endif
 .PHONY : clean
 clean :
 	rm -f client server *.o *.key
+
+# possible problems to address with Bon
+# 1. maybe uname -s doens't return Darwin on MacOS catalina
+# 2. -I/usr/X11R6/include  might need to be put in at a later stage; 
+	# it doesn't make sense that it should be invoked when creating the 
+	# OBJECT file.
+# javac -h . native.java // generate header
+# 3. Add the following to the makefile. You will need autoconf to include java
+# // copy function prototype from header into .cpp file
+# // compile cpp file as shared object library
+# g++ -shared -I/usr/lib/jvm/java-12-openjdk-amd64/include/linux -I/usr/lib/jvm/java-12-openjdk-amd64/include -o libNative.so -fPIC libNative.cp
