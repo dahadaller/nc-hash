@@ -1,6 +1,5 @@
 # Variable Assignments
-SOURCES := $(wildcard *.cpp)  # SOURCES is a list of all our .cpp files
-OBJECTS := $(OBJECTS:.cpp=.o) #OBJECTS is list of all object files by text replacement (Section 6.3)
+OBJECTS := client.o server.o ncph.o #OBJECTS is list of all object files by text replacement (Section 6.3)
 LDADD_Linux    := -lpaillier -lX11 -lgmp -lm -lpthread -lGraphicsMagick
 LDADD_Darwin   := /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
 UNAME_S := $(shell uname -s)
@@ -24,17 +23,15 @@ ifeq ($(UNAME_S),Darwin)
 	g++ -o $@ $^ $(LDADD_Darwin)
 endif
 
-# # Implicitly finds each .cpp file with matching name 
-# #  and compiles into object file (no linking) with
-# # "cc -c blah.cpp -o blah.o"
-# tcp.o client.o server.o:
+tcp.o: tcp.cpp
+	g++ -c -o $@ $^
 
-$(OBJECTS): $(SOURCES)
+$(OBJECTS): %.o: %.cpp
 ifeq ($(UNAME_S),Linux)
-	g++ -c $^
+	g++ -c -o $@ $^
 endif
 ifeq ($(UNAME_S),Darwin)
-	g++ -I/usr/X11R6/include -c $^
+	g++ -c -o $@ $^ -I/usr/X11R6/include 
 endif
 
 .PHONY : clean
