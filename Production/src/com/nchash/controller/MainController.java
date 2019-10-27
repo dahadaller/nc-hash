@@ -9,6 +9,7 @@ import javafx.fxml.FXML;
 import javafx.geometry.Point2D;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
+import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
@@ -23,6 +24,8 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
+
+import com.nchash.controller.GuiUtil;
 
 /**
  * This is the main controller. It contains all the functionality
@@ -165,10 +168,10 @@ public class MainController {
         String pathToFile = openFileExplorer();
         if(pathToFile != null){
 
-            CppHook cpp = new CppHook();
-            System.out.println("CppHook Declaration Successful.");
-            cpp.printMsg("YAYYY NATIVE CODE!!!!"); //TODO: DON"T FORGET THIS
-            System.out.println(cpp.please_work("This message passes through C++"));
+//            CppHook cpp = new CppHook();
+//            System.out.println("CppHook Declaration Successful.");
+//            cpp.printMsg("YAYYY NATIVE CODE!!!!"); //TODO: DON"T FORGET THIS
+//            System.out.println(cpp.please_work("This message passes through C++"));
 
             if (!centerVBox.getChildren().contains(hashButton)){
                 centerVBox.getChildren().add(hashButton);
@@ -188,10 +191,12 @@ public class MainController {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("File Explorer");
         File file = fileChooser.showOpenDialog(null);
-        if(isImageFile(file) && file != null){
+        if(isImageFile(file)){
             StringBuilder pathToFile = new StringBuilder("file:");
             pathToFile.append(file.getAbsolutePath());
             return pathToFile.toString();
+        }else {
+            invalidImageFileAlert();
         }
         return null;
     }
@@ -254,6 +259,7 @@ public class MainController {
             event.consume();
             return pathToImage.toString();
         }
+        invalidImageFileAlert();
         return null;
 
     }
@@ -282,10 +288,19 @@ public class MainController {
      * @return true if file is an image, false if not.
      */
     private boolean isImageFile(File file){
+        if(file == null) return false;
         String filePath = file.getAbsolutePath().toLowerCase();
         return  filePath.endsWith(".png") ||
                 filePath.endsWith(".img") ||
                 filePath.endsWith(".jpg");
+    }
+
+    /**
+     * Generates a error pop up window that warns the user that the file he/she has chosen is not a
+     * valid image file
+     */
+    private void invalidImageFileAlert(){
+        GuiUtil.createAlertWindow(Alert.AlertType.ERROR,"The file you selected is not an image file.", "Invalid File Type","Error");
     }
 
 }
