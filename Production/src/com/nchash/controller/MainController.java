@@ -297,10 +297,10 @@ public class MainController {
 
     /**
      * Generates a error pop up window that warns the user that the file he/she has chosen is not a
-     * valid image file
+     * valid image file.
      */
     private void invalidImageFileAlert(){
-        GuiUtil.createAlertWindow(Alert.AlertType.ERROR,"The file you selected is not an image file.", "Invalid File Type","Error");
+        new GuiUtil().createAlertWindow(Alert.AlertType.ERROR,"The file you selected is not an image file.", "Invalid File Type","Error");
     }
 
 }
