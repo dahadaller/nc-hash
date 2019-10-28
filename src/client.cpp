@@ -17,7 +17,8 @@
     For any questions, you may contact NCP-Hash Group via opening an issue on https://github.com/ncp-hash/public-phash/issues
 */
 
-#include "ncph.hpp"
+#include "ncph.h"
+#include "tcp.h"
 
 
 //TODO: Where should I put this function? It uses c++ classes (gmp) and it uses the 
@@ -63,21 +64,30 @@
 
 // }
 
-int main() {
+using std::vector;
+
+int main(int argc, char* argv[]) {
 
     // ========================================================================================
     // GENERATING RHO_SUMS
     // ========================================================================================
 
-    CImg<float> src("../img/GrayLenna.bmp");
-    CImg<float> img = get_grayscale(src);
-    CImg<float> low_pass_filter(9, 9, 1, 1, 1.0/9.0);
-    img = apply_filter(img, low_pass_filter);
+    if (argc < 2) {
+        fprintf(stderr, "usage: %s <image_1> ... <image_n>\n", argv[0]);
+        exit(1);
+    }
 
-    CImg<float> polar = polar_FFT(img);
+    // CImg<float> src("../img/GrayLenna.bmp");
+    // CImg<float> img = get_grayscale(src);
+    // CImg<float> low_pass_filter(9, 9, 1, 1, 1.0/9.0);
+    // img = apply_filter(img, low_pass_filter);
 
-    // float *message1 = sum_along_rho1(polar);
-    std::vector<int> rho_sums = sum_along_rho(polar);
+    // CImg<float> polar = polar_FFT(img);
+
+    // // float *message1 = sum_along_rho1(polar);
+    // std::vector<int> rho_sums = sum_along_rho(polar);
+
+    vector<int> rho_sums = preproc_radial_sums(argv[1]);
 
 
     /* PARAMETERS & CONSTRAINTS: 
@@ -163,7 +173,7 @@ int main() {
 
     // allocate C as char string and receive challenge bit
     unsigned char* C_string = (unsigned char*)malloc((number_bytes_read) * sizeof(unsigned char));
-    C_string = receive_char_string(tcp_socket);
+    C_string = (unsigned char*)receive_char_string(tcp_socket);
     mpz_from_bytes(read_C, C_string, number_bytes_read);
 
     gmp_printf("received challnge bit vector: %Zd\n",read_C.get_mpz_t());
@@ -228,7 +238,7 @@ int main() {
         bytes_from_mpz(S_i_string, len_ptr, S[i]);///
 
         send_char_string(tcp_socket, (char*)len_ptr, sizeof(size_t));//need to convert to network byte order before sending
-        send_char_string(tcp_socket, S_i_string, S_i_string_length);
+        send_char_string(tcp_socket, (char*)S_i_string, S_i_string_length);
 
         // free(S_i_string);
     }

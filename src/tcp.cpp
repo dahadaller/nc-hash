@@ -17,19 +17,7 @@
     For any questions, you may contact NCP-Hash Group via opening an issue on https://github.com/ncp-hash/public-phash/issues
 */
 
-#include <assert.h>
-
-#include <stdio.h> 
-#include <unistd.h>
-#include <netdb.h> 
-#include <netinet/in.h> 
-#include <stdlib.h> 
-#include <string.h> 
-#include <sys/socket.h> 
-#include <sys/types.h> 
-#include <arpa/inet.h>
-#include <stdint.h>
-#include <errno.h>
+# include "tcp.h"
 
 // #define MAX 513 //256, 2-byte betas with one /n character at end 
 #define MAX 65537 // 65,536 bytes plus one terminating byte
@@ -49,7 +37,7 @@
 int min(int first, int second){
 
 	if(first<second) return first;
-	else if(first>=second) return second;
+	else return second;
 }
 
 int server_init(void){
@@ -303,4 +291,3 @@ paillier_pubkey_t* read_paillier_key_file(void){
 
 	return paillier_pubkey_from_hex(return_key);
 }
-

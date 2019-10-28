@@ -17,7 +17,9 @@
     For any questions, you may contact NCP-Hash Group via opening an issue on https://github.com/ncp-hash/public-phash/issues
 */
 
-#include "ncph.hpp"
+#include "ncph.h"
+#include "tcp.h"
+
 
 int main() {
 
@@ -113,7 +115,7 @@ int main() {
     bytes_from_mpz(C_string, len_ptr, C);///
 
     send_char_string(tcp_socket, (char*)len_ptr, sizeof(size_t));//need to convert to network byte order before sending
-    send_char_string(tcp_socket, C_string, C_string_length);
+    send_char_string(tcp_socket, (char*) C_string, C_string_length);
 
     printf("\nnumber of bytes sent: %lu",C_string_length);
     gmp_printf("sending challenge bit vector: %Zd\n",C.get_mpz_t());
@@ -138,7 +140,7 @@ int main() {
         number_bytes_read = *((size_t*)receive_char_string(tcp_socket)); //TODO: need to convert from network byte order before reading
         unsigned char* S_i_string = (unsigned char*)malloc((number_bytes_read) * sizeof(unsigned char));
 
-        S_i_string = receive_char_string(tcp_socket);
+        S_i_string = (unsigned char*)receive_char_string(tcp_socket);
         mpz_from_bytes(S_i, S_i_string, number_bytes_read);
         S.push_back(S_i);
 
