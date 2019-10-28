@@ -36,6 +36,12 @@ public class Particle {
         this.color = color;
     }
 
+    public Particle(int x, int y, Color color, double life){
+        this.x.set(x);
+        this.y.set(y);
+        this.color = color;
+        this.life = life;
+    }
     public double getX() {
         return x.get();
     }
@@ -87,6 +93,12 @@ public class Particle {
         return life == 0;
     }
 
+    public boolean isAlive(){
+        return life == 1;
+    }
+
+
+
     /**
      * Allows us to activate the particle.
      */
@@ -122,5 +134,15 @@ public class Particle {
 
         this.x.set(getX() + velocity.getX());
         this.y.set(getY() + velocity.getY());
+    }
+
+    public void fadeIn(){
+        /*
+        Reduces the value by every 60th of a second times 0.75
+        So that is slightly smaller than that.
+         */
+        life += 0.1 * Math.random();
+        if(life > 1) life = 1;
+
     }
 }

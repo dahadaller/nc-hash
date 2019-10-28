@@ -23,6 +23,7 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import com.nchash.controller.GuiUtil;
@@ -79,7 +80,7 @@ public class MainController {
         return new EventHandler() {
             @Override
             public void handle(Event event) {
-                disintegrate(mainImage);
+                disintegrate(mainImage, true);
                 centerVBox.getChildren().remove(hashButton);
                 AnimationTimer timer = new AnimationTimer() {
                     @Override
@@ -88,7 +89,18 @@ public class MainController {
                         if (particleList.isEmpty()){
                             this.stop();
                             g.setGlobalAlpha(1.0);
-                            setCurrentImage(uploadImage);
+                            disintegrate(uploadImage, false);
+
+                            AnimationTimer timer1 = new AnimationTimer() {
+                                @Override
+                                public void handle(long now) {
+                                    fadeIn();
+                                    if (particleList.isEmpty()) {
+                                        this.stop();
+                                    }
+                                }
+                            };
+                            timer1.start();
                         }
                     }
                 };
@@ -97,13 +109,15 @@ public class MainController {
         };
     }
 
+
+
     /**
      * Gets the pixel reader of the image. It then reads each pixel
      * and saves that x, y, and color values inside a particle object.
      * Each particle is then added to the particle list.
      * @param image
      */
-    private void disintegrate(Image image){
+    private void disintegrate(Image image, boolean aLive){
         PixelReader pixelReader = image.getPixelReader();
 
         for (int y = 0 ; y < image.getHeight(); y++){
@@ -111,12 +125,23 @@ public class MainController {
                 Color color = pixelReader.getColor(x, y);
                 //Ignores transparent pixels.
                 if (!color.equals(Color.TRANSPARENT)){
-                    Particle p = new Particle(x, y, color);
+                    Particle p = (aLive)?  new Particle(x, y, color) : new Particle(x, y, color,0);
                     particleList.add(p);
                 }
             }
         }
+
     }
+
+    private void fadeIn(){
+        particleList.removeIf(Particle-> Particle.isAlive());
+        particleList.forEach(particle -> {
+            particle.fadeIn();
+            particle.draw(g);
+        });
+
+    }
+
 
     /**
      * This function is called each frame.
@@ -135,7 +160,7 @@ public class MainController {
 
         particleList.parallelStream()
                 .filter(particle -> !particle.isActive())
-                .forEach(particle -> particle.activate(new Point2D(- Math.random()  ,  - Math.random()  )));
+                .forEach(particle -> particle.activate(new Point2D(- Math.random()*10,  - Math.random()*10)));
 
         particleList.forEach(particle -> {
             particle.update();
@@ -302,5 +327,4 @@ public class MainController {
     private void invalidImageFileAlert(){
         new GuiUtil().createAlertWindow(Alert.AlertType.ERROR,"The file you selected is not an image file.", "Invalid File Type","Error");
     }
-
 }
