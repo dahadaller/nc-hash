@@ -17,10 +17,10 @@ JNIEXPORT void JNICALL Java_com_nchash_view_CppHook_printMsg
 
 /*
  * Class:     com_nchash_view_CppHook
- * Method:    please_work
+ * Method:    client_caller
  * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_com_nchash_view_CppHook_please_1work
+JNIEXPORT jstring JNICALL Java_com_nchash_view_CppHook_client_1caller
   (JNIEnv *, jobject, jstring);
 
 #ifdef __cplusplus
