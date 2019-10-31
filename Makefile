@@ -8,15 +8,16 @@ JNI_Linker_Flags := -shared -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/lin
 
 # Begin Build Process
 .PHONY : all
-all : CppHook.so client server
+all : client server
+# all : CppHook.so client server
 
-# Build the JNI C header
-com_nchash_view_CppHook.h: ../view/CppHook.java
-	javac -h . ../view/CppHook.java
+# # Build the JNI C header
+# com_nchash_view_CppHook.h: ../view/CppHook.java
+# 	javac -h . ../view/CppHook.java
 
-# Compile and link Hooks from CPP to Java
-CppHook.so: CppHook.cpp com_nchash_view_CppHook.h
-	g++ -o $@ $^ $(JNI_Linker_Flags)
+# # Compile and link Hooks from CPP to Java
+# CppHook.so: CppHook.cpp com_nchash_view_CppHook.h
+# 	g++ -o $@ $^ $(JNI_Linker_Flags)
 
 # Link object files to create executable client
 client: client.o tcp.o ncph.o
@@ -28,7 +29,7 @@ ifeq ($(OS),Darwin)
 endif
 
 # Link object files to create executable server
-server: server.o tcp.o ncph.o
+server: server.o libserver.o tcp.o ncph.o libserver.o
 ifeq ($(OS),Linux)
 	g++ -o $@ $^ $(Linux_Linker_Flags)
 endif
@@ -52,3 +53,6 @@ endif
 .PHONY : clean
 clean :
 	rm -f client server com_nchash_view_CppHook.h *.o *.key *.so
+
+
+# g++ -o server server.o libserver.o tcp.o ncph.o -lpaillier -lX11 -lgmp -lm -lpthread -lGraphicsMagick

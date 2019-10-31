@@ -1,3 +1,4 @@
+
 /* ncphclient.cpp is the program that will run on the server side in the public-key PHash scheme.
     Copyright (C) <2019>  <NCP-Hash Group>
 
@@ -17,10 +18,7 @@
     For any questions, you may contact NCP-Hash Group via opening an issue on https://github.com/ncp-hash/public-phash/issues
 */
 
+#include "ncph.h"
+#include "tcp.h"
 
-#include "libserver.h"
-
-int main(int argc, char* argv[]) {
-    server();
-    return 0;
-}
+int server(void);
