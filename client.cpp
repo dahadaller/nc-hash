@@ -19,7 +19,7 @@
 
 // #include "ncph.h"
 // #include "tcp.h"
-#include "libclient.h"
+#include "libClient.h"
 
 
 //TODO: Where should I put this function? It uses c++ classes (gmp) and it uses the 

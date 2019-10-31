@@ -1,5 +1,5 @@
 # Variable Assignments
-OBJECTS := client.o server.o ncph.o #OBJECTS is list of all object files by text replacement (Section 6.3)
+OBJECTS := server.o client.o libClient.o libTCP.o libNCPH.o
 Linux_Linker_Flags    := -lpaillier -lX11 -lgmp -lm -lpthread -lGraphicsMagick
 Mac_Linker_Flags   := /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
 OS := $(shell uname -s)
@@ -8,18 +8,19 @@ JNI_Linker_Flags := -shared -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/lin
 
 # Begin Build Process
 .PHONY : all
-all : CppHook.so client server
+all : client server
+# all : CppHook.so client server
 
-# Build the JNI C header
-com_nchash_view_CppHook.h: ../view/CppHook.java
-	javac -h . ../view/CppHook.java
+# # Build the JNI C header
+# com_nchash_view_CppHook.h: ../view/CppHook.java
+# 	javac -h . ../view/CppHook.java
 
-# Compile and link Hooks from CPP to Java
-CppHook.so: CppHook.cpp com_nchash_view_CppHook.h
-	g++ -o $@ $^ $(JNI_Linker_Flags)
+# # Compile and link Hooks from CPP to Java
+# CppHook.so: CppHook.cpp com_nchash_view_CppHook.h
+# 	g++ -o $@ $^ $(JNI_Linker_Flags)
 
 # Link object files to create executable client
-client: client.o tcp.o ncph.o
+client: client.o libClient.o libTCP.o libNCPH.o 
 ifeq ($(OS),Linux)
 	g++ -o $@ $^ $(Linux_Linker_Flags) 
 endif
@@ -28,7 +29,7 @@ ifeq ($(OS),Darwin)
 endif
 
 # Link object files to create executable server
-server: server.o tcp.o ncph.o
+server: server.o libServer.o libTCP.o libNCPH.o 
 ifeq ($(OS),Linux)
 	g++ -o $@ $^ $(Linux_Linker_Flags)
 endif
@@ -52,3 +53,6 @@ endif
 .PHONY : clean
 clean :
 	rm -f client server com_nchash_view_CppHook.h *.o *.key *.so
+
+
+# g++ -o server server.o libserver.o tcp.o ncph.o -lpaillier -lX11 -lgmp -lm -lpthread -lGraphicsMagick
