@@ -17,7 +17,7 @@
     For any questions, you may contact NCP-Hash Group via opening an issue on https://github.com/ncp-hash/public-phash/issues
 */
 
-# include "tcp.h"
+# include "libTCP.h"
 
 // #define MAX 513 //256, 2-byte betas with one /n character at end 
 #define MAX 65537 // 65,536 bytes plus one terminating byte

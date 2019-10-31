@@ -1,5 +1,5 @@
 # Variable Assignments
-OBJECTS := client.o server.o ncph.o #OBJECTS is list of all object files by text replacement (Section 6.3)
+OBJECTS := server.o client.o libClient.o libTCP.o libNCPH.o
 Linux_Linker_Flags    := -lpaillier -lX11 -lgmp -lm -lpthread -lGraphicsMagick
 Mac_Linker_Flags   := /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
 OS := $(shell uname -s)
@@ -20,7 +20,7 @@ all : client server
 # 	g++ -o $@ $^ $(JNI_Linker_Flags)
 
 # Link object files to create executable client
-client: client.o tcp.o ncph.o
+client: client.o libClient.o libTCP.o libNCPH.o 
 ifeq ($(OS),Linux)
 	g++ -o $@ $^ $(Linux_Linker_Flags) 
 endif
@@ -29,7 +29,7 @@ ifeq ($(OS),Darwin)
 endif
 
 # Link object files to create executable server
-server: server.o libserver.o tcp.o ncph.o libserver.o
+server: server.o libServer.o libTCP.o libNCPH.o 
 ifeq ($(OS),Linux)
 	g++ -o $@ $^ $(Linux_Linker_Flags)
 endif

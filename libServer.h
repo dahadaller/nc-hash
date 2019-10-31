@@ -18,7 +18,7 @@
     For any questions, you may contact NCP-Hash Group via opening an issue on https://github.com/ncp-hash/public-phash/issues
 */
 
-#include "ncph.h"
-#include "tcp.h"
+#include "libNCPH.h"
+#include "libTCP.h"
 
 int server(void);

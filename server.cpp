@@ -18,7 +18,7 @@
 */
 
 
-#include "libserver.h"
+#include "libServer.h"
 
 int main(int argc, char* argv[]) {
     server();

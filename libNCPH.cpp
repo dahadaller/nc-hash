@@ -19,7 +19,7 @@
     https://github.com/ncp-hash/public-phash/issues
 */
 
-#include "ncph.h"
+#include "libNCPH.h"
 #include <gmpxx.h>
 
 extern "C" {
