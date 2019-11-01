@@ -94,7 +94,7 @@ float* sum_along_rho1(CImg<float> polar_magnitude);
 
 std::vector<int> sum_along_rho(CImg<float> polar_magnitude);
 
-std::vector<int> preproc_radial_sums(char* filename);
+std::vector<int> preproc_radial_sums(const char* filename);
 
 int get_rand_index(int const &size);
 

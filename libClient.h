@@ -1,4 +1,4 @@
 #include "libNCPH.h"
 #include "libTCP.h"
 
-int client(char* file_name[]);
+int client(const char* file_name);
