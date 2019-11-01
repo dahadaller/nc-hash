@@ -67,7 +67,7 @@
 
 using std::vector;
 
-int client(char* file_name[]) {
+int client(const char* file_name) {
 
     // ========================================================================================
     // GENERATING RHO_SUMS
@@ -84,7 +84,7 @@ int client(char* file_name[]) {
     // // float *message1 = sum_along_rho1(polar);
     // std::vector<int> rho_sums = sum_along_rho(polar);
 
-    vector<int> rho_sums = preproc_radial_sums(file_name[1]);
+    vector<int> rho_sums = preproc_radial_sums(file_name);
 
 
     /* PARAMETERS & CONSTRAINTS: 

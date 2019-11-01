@@ -262,7 +262,7 @@ std::vector<int> sum_along_rho(CImg<float> polar_magnitude) {
     return res;
 }
 
-std::vector<int> preproc_radial_sums(char* filename) {
+std::vector<int> preproc_radial_sums(const char* filename) {
 	CImg<float> src(filename);
 	CImg<float> img = get_grayscale(src);
 	img.blur(2.5);
