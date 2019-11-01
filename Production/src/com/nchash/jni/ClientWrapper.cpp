@@ -1,7 +1,7 @@
 #include "com_nchash_view_CppHook.h"
 #include <jni.h>
 #include <stdio.h>
-
+#include "libClient.h"
 // using namespace std;
 
 JNIEXPORT void JNICALL Java_com_nchash_view_CppHook_printMsg
@@ -35,7 +35,8 @@ JNIEXPORT jstring JNICALL Java_com_nchash_view_CppHook_client_1caller
         printf("Could not convert Java string to UTF-8 string.\n");
         return 0;
     }
-    //hash = client(utfMsg);
+    // hash = client(utfMsg);
+    hash = hash(utfMsg); //@BON this call should work
     // let's pretend this text is being processed here. rather than just reassigned.
 
     jstring javaString = env->NewStringUTF(utfMsg);
