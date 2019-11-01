@@ -6,27 +6,17 @@ OS := $(shell uname -s)
 JAVA_HOME := $(shell readlink -e "$$(dirname "$$(readlink -e "$$(which javac)")")"/..)
 JNI_Linker_Flags := -shared -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/linux" -fPIC
 
-# COMMENT THIS OUT BEFORE TESTING WITH JNI
-# *****************************************************
 # Begin Build Process
 .PHONY : all
-all : client server
-# *****************************************************
+all : ClientWrapper.so client server
 
-# UNCOMMENT TO TEST WITH JNI
-# //////////////////////////////////////////////////////
-# # Begin Build Process
-# .PHONY : all
-# all : ClientWrapper.so client server
+# Build the JNI C header
+com_nchash_view_CppHook.h: ../view/CppHook.java
+	javac -h . ../view/CppHook.java
 
-# # Build the JNI C header
-# com_nchash_view_CppHook.h: ../view/CppHook.java
-# 	javac -h . ../view/CppHook.java
-
-# # Compile and link Hooks from CPP to Java
-# ClientWrapper.so: ClientWrapper.cpp com_nchash_view_CppHook.h
-# 	g++ -o $@ $^ $(JNI_Linker_Flags)
-# ////////////////////////////////////////////////////////
+# Compile and link Hooks from CPP to Java
+ClientWrapper.so: ClientWrapper.cpp com_nchash_view_CppHook.h
+	g++ -o $@ $^ $(JNI_Linker_Flags)
 
 # Link object files to create executable client
 client: client.o libClient.o libTCP.o libNCPH.o 

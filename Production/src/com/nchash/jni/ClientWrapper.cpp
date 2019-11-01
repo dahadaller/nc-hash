@@ -36,7 +36,7 @@ JNIEXPORT jstring JNICALL Java_com_nchash_view_CppHook_client_1caller
         return 0;
     }
     // hash = client(utfMsg);
-    hash = hash(utfMsg); //@BON this call should work
+    // hash = hash(utfMsg); //@BON this call should work
     // let's pretend this text is being processed here. rather than just reassigned.
 
     jstring javaString = env->NewStringUTF(utfMsg);
