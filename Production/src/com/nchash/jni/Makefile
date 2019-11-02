@@ -1,10 +1,17 @@
-`# Variable Assignments
+# Variable Assignments
 OBJECTS := server.o client.o libClient.o libServer.o libTCP.o libNCPH.o
 Linux_Linker_Flags    := -lpaillier -lX11 -lgmp -lm -lpthread -lGraphicsMagick
 Mac_Linker_Flags   := /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11
 OS := $(shell uname -s)
-JAVA_HOME := $(shell readlink -e "$$(dirname "$$(readlink -e "$$(which javac)")")"/..)
-JNI_Linker_Flags := -shared -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/linux" -fPIC
+
+ifeq ($(OS),Linux)
+	JAVA_HOME := $(shell readlink -e "$$(dirname "$$(readlink -e "$$(which javac)")")"/..)
+	JNI_Linker_Flags := -shared -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/linux" -fPIC 
+endif
+ifeq ($(OS),Darwin)
+	JAVA_HOME :=  $(shell /usr/libexec/java_home)
+	JNI_Linker_Flags := -shared -I"$(JAVA_HOME)/include" -I"$(JAVA_HOME)/include/darwin" -I/opt/X11/include -fPIC 
+endif
 
 # Begin Build Process
 .PHONY : all
