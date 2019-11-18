@@ -63,7 +63,8 @@ public class MainController {
     public void initialize(){
         g = mainCanvas.getGraphicsContext2D();
         setCurrentImage(uploadImage);
-
+        centerVBox.getChildren().add(hashButton);
+        hashButton.setVisible(false);
         hashButton.setOnAction(getHashButtonEventHandler());
 
     }
@@ -83,7 +84,7 @@ public class MainController {
             @Override
             public void handle(Event event) {
                 disintegrate(mainImage, true);
-                centerVBox.getChildren().remove(hashButton);
+                hashButton.setVisible(false);
                 playAnimation();
             }
         };
@@ -204,8 +205,8 @@ public class MainController {
 //            cpp.printMsg("YAYYY NATIVE CODE!!!!"); //TODO: DON"T FORGET THIS
 //            System.out.println(cpp.client_caller("This message passes through C++"));
 
-            if (!centerVBox.getChildren().contains(hashButton)){
-                centerVBox.getChildren().add(hashButton);
+            if (!hashButton.isVisible()){
+                hashButton.setVisible(true);
             }
             mainImage = new Image(pathToFile, width, height, true, false);
             setCurrentImage(mainImage);
@@ -257,18 +258,17 @@ public class MainController {
     @FXML
     private void handleDrop(DragEvent event){
         try {
-            if (!centerVBox.getChildren().contains(hashButton)){
-                centerVBox.getChildren().add(hashButton);
-            }
+
             String pathToFile = getPathToImageDragAndDrop(event);
             if (pathToFile != null){
+                if (!hashButton.isVisible()){
+                    hashButton.setVisible(true);
+                }
                 mainImage = new Image(getPathToImageDragAndDrop(event), width, height, true, false);
                 setCurrentImage(mainImage);
 
             }else {
                 setCurrentImage(null);
-                centerVBox.getChildren().remove(hashButton);
-
             }
         }catch (Exception e){
             e.printStackTrace();
