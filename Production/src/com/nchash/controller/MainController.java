@@ -1,5 +1,6 @@
 package com.nchash.controller;
 
+
 import com.nchash.model.Particle;
 import com.nchash.view.CppHook;
 import javafx.animation.AnimationTimer;
@@ -23,10 +24,8 @@ import javafx.stage.FileChooser;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
-import com.nchash.controller.GuiUtil;
 
 /**
  * This is the main controller. It contains all the functionality
@@ -38,6 +37,9 @@ public class MainController {
     private double width  = 500.0;
 
     private final static String defaultUploadImage = "file:src/com/nchash/images/drag_and_drop_image.jpg";
+    private final static String barcodeImagePath = "file:src/com/nchash/images/barcode.jpg";
+
+    private Image barCodeImage = new Image(barcodeImagePath, width, height, true, false);
     private Image uploadImage = new Image(defaultUploadImage, width, height, true, false);
     private Image mainImage;
 
@@ -82,31 +84,35 @@ public class MainController {
             public void handle(Event event) {
                 disintegrate(mainImage, true);
                 centerVBox.getChildren().remove(hashButton);
-                AnimationTimer timer = new AnimationTimer() {
-                    @Override
-                    public void handle(long now) {
-                        update();
-                        if (particleList.isEmpty()){
-                            this.stop();
-                            g.setGlobalAlpha(1.0);
-                            disintegrate(uploadImage, false);
-
-                            AnimationTimer timer1 = new AnimationTimer() {
-                                @Override
-                                public void handle(long now) {
-                                    fadeIn();
-                                    if (particleList.isEmpty()) {
-                                        this.stop();
-                                    }
-                                }
-                            };
-                            timer1.start();
-                        }
-                    }
-                };
-                timer.start();
+                playAnimation();
             }
         };
+    }
+
+    private void playAnimation(){
+        AnimationTimer timer = new AnimationTimer() {
+            @Override
+            public void handle(long now) {
+                update();
+                if (particleList.isEmpty()){
+                    this.stop();
+                    g.setGlobalAlpha(1.0);
+                    disintegrate(uploadImage, false);
+
+                    AnimationTimer timer1 = new AnimationTimer() {
+                        @Override
+                        public void handle(long now) {
+                            fadeIn();
+                            if (particleList.isEmpty()) {
+                                this.stop();
+                            }
+                        }
+                    };
+                    timer1.start();
+                }
+            }
+        };
+        timer.start();
     }
 
 
@@ -193,10 +199,10 @@ public class MainController {
         String pathToFile = openFileExplorer();
         if(pathToFile != null){
 
-            CppHook cpp = new CppHook();
-            System.out.println("CppHook Declaration Successful.");
-            cpp.printMsg("YAYYY NATIVE CODE!!!!"); //TODO: DON"T FORGET THIS
-            System.out.println(cpp.client_caller("This message passes through C++"));
+//            CppHook cpp = new CppHook();
+//            System.out.println("CppHook Declaration Successful.");
+//            cpp.printMsg("YAYYY NATIVE CODE!!!!"); //TODO: DON"T FORGET THIS
+//            System.out.println(cpp.client_caller("This message passes through C++"));
 
             if (!centerVBox.getChildren().contains(hashButton)){
                 centerVBox.getChildren().add(hashButton);
