@@ -1,4 +1,6 @@
 
+
+# Java Stuff
 Production/.idea/$PRODUCT_WORKSPACE_FILE$
 Production/.idea/misc.xml
 Production/.idea/modules.xml
@@ -17,3 +19,31 @@ Production/.idea/vcs.xml
 Production/out/production/Production/com/nchash/images/drag_and_drop_image.jpg
 Production/.idea/encodings.xml
 com_nchash_view_CppHook.h
+*.class
+
+#plaintext storage
+pubkey.txt
+ciphertext.txt
+*.txt
+*.key
+
+#executables
+client
+server
+*.out
+*.o
+*.so
+
+# VS Code #
+.vscode
+
+# OS generated files #
+.DS_Store/ #this is for .DS_Store directories
+*.DS_Store
+*.DS_Storegit
+*.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
