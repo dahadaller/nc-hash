@@ -1,4 +1,4 @@
-`# Variable Assignments
+# Variable Assignments
 OBJECTS := server.o client.o libClient.o libServer.o libTCP.o libNCPH.o
 Linux_Linker_Flags    := -lpaillier -lX11 -lgmp -lm -lpthread -lGraphicsMagick
 Mac_Linker_Flags   := /usr/local/opt/gmp/lib/libgmp.a /usr/local/lib/libpaillier.a -O2 -lm -lpthread -I/usr/X11R6/include -L/usr/X11R6/lib -lm -lpthread -lX11

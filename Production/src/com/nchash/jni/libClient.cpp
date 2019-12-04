@@ -240,7 +240,12 @@ int client(const char* file_name) {
         // free(S_i_string);
     }
     
-    
+
+   /*
+    *   Receive the ZKP results
+    */ 
+    char* zkp_results = receive_char_string(tcp_socket);
+    printf("%s\n", zkp_results);
 
 
 ////////

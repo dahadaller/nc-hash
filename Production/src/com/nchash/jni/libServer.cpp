@@ -182,14 +182,16 @@ int server(void){
     paillier_plaintext_t* RHS;
     RHS = paillier_dec(NULL, pu, pr, prod);
 
-
     if(!mpz_cmp (LHS->m, RHS->m)) {
-        std::cout << "ZKP check passed!" << std::endl;
+        char pass_fail[9] = "ZKP PASS";
+        send_char_string(tcp_socket, pass_fail, 9);
+        printf("%s\n", pass_fail);
     }
     else {
-        std::cout << "Did not pass ZKP check!" << std::endl;
+        char pass_fail[9] = "ZKP PASS";
+        send_char_string(tcp_socket, pass_fail, 9);
+        printf("%s\n", pass_fail);
     }
-    
    
     /* CLEANUP AND SOCKET CLOSURE*/
 
