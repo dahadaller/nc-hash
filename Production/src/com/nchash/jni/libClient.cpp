@@ -67,7 +67,7 @@
 
 using std::vector;
 
-int client(const char* file_name) {
+bool client(const char* file_name) {
 
     // ========================================================================================
     // GENERATING RHO_SUMS
@@ -261,7 +261,8 @@ int client(const char* file_name) {
     }
     paillier_freepubkey(pu);
     free(enc_hash_string);
+    
+    return (strcmp(zkp_results, "ZKP PASS") ? false : true);
 
-    return 0;
-
+    // return 0;
 }

@@ -273,7 +273,7 @@ int main(int argc, char* argv[]) {
         exit(1);
     }
 
-    client(argv[1]);
+    std::cout << client(argv[1]) << std::endl;
 
     return 0;
 }
