@@ -200,10 +200,9 @@ public class MainController {
         String pathToFile = openFileExplorer();
         if(pathToFile != null){
 
-//            CppHook cpp = new CppHook();
-//            System.out.println("CppHook Declaration Successful.");
-//            cpp.printMsg("YAYYY NATIVE CODE!!!!"); //TODO: DON"T FORGET THIS
-//            System.out.println(cpp.client_caller("This message passes through C++"));
+            CppHook cpp = new CppHook();
+
+            System.out.println(cpp.client_caller(pathToFile));
 
             if (!hashButton.isVisible()){
                 hashButton.setVisible(true);

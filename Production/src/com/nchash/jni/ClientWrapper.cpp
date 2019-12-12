@@ -26,7 +26,7 @@ JNIEXPORT void JNICALL Java_com_nchash_view_CppHook_printMsg
 JNIEXPORT jstring JNICALL Java_com_nchash_view_CppHook_client_1caller
   (JNIEnv *env, jobject obj, jstring image_file_path){
     const char *utf_image_file_path;
-    const bool hash_received_zkp_passed;
+    bool hash_received_zkp_passed;
     jboolean *iscopy = NULL;
 
     // Get the UTF string
@@ -36,7 +36,8 @@ JNIEXPORT jstring JNICALL Java_com_nchash_view_CppHook_client_1caller
         return 0;
     }
     hash_received_zkp_passed = client(utf_image_file_path);
-    jstring javaString = env->NewStringUTF(hash_received_zkp_passed);
+    const char* cString = hash_received_zkp_passed ? "ZKP PASSED" : "ZKP FAILED";
+    jstring javaString = env->NewStringUTF(cString);
 
     //TODO: Memory Leak
     // Release the memory

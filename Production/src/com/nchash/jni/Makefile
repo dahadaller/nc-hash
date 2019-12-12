@@ -35,7 +35,7 @@ ifeq ($(OS),Darwin)
 endif
 
 # Link object files to create executable server
-server: server.o libServer.o libTCP.o libNCPH.o 
+server: server.o libServer.o libTCP.o libNCPH.o
 ifeq ($(OS),Linux)
 	g++ -o $@ $^ $(Linux_Linker_Flags)
 endif
