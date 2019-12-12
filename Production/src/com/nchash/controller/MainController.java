@@ -196,7 +196,7 @@ public class MainController {
             CppHook cpp = new CppHook();
             System.out.println("CppHook Declaration Successful.");
             cpp.printMsg("YAYYY NATIVE CODE!!!!"); //TODO: DON"T FORGET THIS
-            System.out.println(cpp.client_caller("This message passes through C++"));
+            System.out.println(cpp.client_caller(pathToFile));
 
             if (!centerVBox.getChildren().contains(hashButton)){
                 centerVBox.getChildren().add(hashButton);
