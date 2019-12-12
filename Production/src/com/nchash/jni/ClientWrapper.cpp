@@ -5,44 +5,42 @@
 // using namespace std;
 
 JNIEXPORT void JNICALL Java_com_nchash_view_CppHook_printMsg
-(JNIEnv *env, jobject obj, jstring msg) {
-    const char *utfMsg;
+(JNIEnv *env, jobject obj, jstring image_file_path) {
+    const char *utf_image_file_path;
     jboolean *iscopy = NULL;
 
     // Get the UTF string 
-    utfMsg = env->GetStringUTFChars(msg, iscopy);
-    if (utfMsg == NULL) {
+    utf_image_file_path = env->GetStringUTFChars(image_file_path, iscopy);
+    if (utf_image_file_path == NULL) {
         printf("Could not convert Java string to UTF-8 string.\n");
         return;
     }
 
     // Print the message on the standard output 
-    printf("%s\n", utfMsg);
+    printf("%s\n", utf_image_file_path);
 
     // Release the memory 
-    env->ReleaseStringUTFChars(msg, utfMsg);
+    env->ReleaseStringUTFChars(image_file_path, utf_image_file_path);
 }
 
 JNIEXPORT jstring JNICALL Java_com_nchash_view_CppHook_client_1caller
-  (JNIEnv *env, jobject obj, jstring msg){
-    const char *utfMsg;
-    const char *hash;
+  (JNIEnv *env, jobject obj, jstring image_file_path){
+    const char *utf_image_file_path;
+    const bool hash_received_zkp_passed;
     jboolean *iscopy = NULL;
 
     // Get the UTF string
-    utfMsg = env->GetStringUTFChars(msg, iscopy);
-    if (utfMsg == NULL) {
-        printf("Could not convert Java string to UTF-8 string.\n");
+    utf_image_file_path = env->GetStringUTFChars(image_file_path, iscopy);
+    if (utf_image_file_path == NULL) {
+        printf("Could not Java string filepath to UTF-8 string filepath.\n");
         return 0;
     }
-    // hash = client(utfMsg);
-    // hash = hash(utfMsg); //@BON this call should work
-    // let's pretend this text is being processed here. rather than just reassigned.
+    hash_received_zkp_passed = client(utf_image_file_path);
+    jstring javaString = env->NewStringUTF(hash_received_zkp_passed);
 
-    jstring javaString = env->NewStringUTF(utfMsg);
-
+    //TODO: Memory Leak
     // Release the memory
-    //env->ReleaseStringUTFChars(msg, utfMsg);
+    //env->ReleaseStringUTFChars(image_file_path, utf_image_file_path);
 
     return javaString;
   }
