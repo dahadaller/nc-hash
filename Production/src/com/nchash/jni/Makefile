@@ -15,7 +15,7 @@ com_nchash_view_CppHook.h: ../view/CppHook.java
 	javac -h . ../view/CppHook.java
 
 # Compile and link Hooks from CPP to Java
-ClientWrapper.so: ClientWrapper.cpp com_nchash_view_CppHook.h
+ClientWrapper.so: ClientWrapper.cpp com_nchash_view_CppHook.h libClient.h
 	g++ -o $@ $< $(JNI_Linker_Flags)
 
 # Link object files to create executable client

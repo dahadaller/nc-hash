@@ -10,5 +10,5 @@ public class CppHook {
         System.load(Paths.get("./src/com/nchash/jni/ClientWrapper.so").toAbsolutePath().normalize().toString());
    }
     public native void printMsg(String msg);
-    public native String client_caller(String input);
+    public native String client_caller(String image_file_path);
 }
