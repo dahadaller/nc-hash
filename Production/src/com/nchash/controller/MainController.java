@@ -21,8 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.stage.FileChooser;
 
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -83,6 +82,11 @@ public class MainController {
         return new EventHandler() {
             @Override
             public void handle(Event event) {
+                try{
+                    imageToTextFile();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
                 disintegrate(mainImage, true);
                 hashButton.setVisible(false);
                 playAnimation();
@@ -331,5 +335,19 @@ public class MainController {
      */
     private void invalidImageFileAlert(){
         new GuiUtil().createAlertWindow(Alert.AlertType.ERROR,"The file you selected is not an image file.", "Invalid File Type","Error");
+    }
+
+    /**
+     * Creates a new text file containing the path to the image. Note if the text file already exist. The
+     * contents of the text file is replaced with the new path of the image.
+     * @throws IOException
+     */
+    private void imageToTextFile()throws IOException{
+        // Offset is needed because the string will return with the words "file:" on front of it.
+        int offset = 5;
+        String imagePath = mainImage.getUrl().substring(offset);
+        BufferedWriter writer = new BufferedWriter(new FileWriter("src/com/nchash/image_path.txt"));
+        writer.write(imagePath);
+        writer.close();
     }
 }
