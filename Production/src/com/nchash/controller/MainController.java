@@ -98,7 +98,7 @@ public class MainController {
                 if (particleList.isEmpty()){
                     this.stop();
                     g.setGlobalAlpha(1.0);
-                    disintegrate(uploadImage, false);
+                    disintegrate(barCodeImage, false);
 
                     AnimationTimer timer1 = new AnimationTimer() {
                         @Override
