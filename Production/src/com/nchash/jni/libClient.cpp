@@ -67,6 +67,22 @@
 
 using std::vector;
 
+bool get_image_path(char const *txt_file, std::string &buffer) {
+    std::ifstream txtfile;
+    txtfile.open(txt_file);
+    if (txtfile) {
+        getline(txtfile, buffer);
+        std::cout << buffer << std::endl;
+    } else {
+        std::cout << "File not found\n";
+        return false;
+    }
+    
+    txtfile.close();
+    return true;
+    // std::cout << img_path << std::endl;
+}
+
 bool client(const char* file_name) {
 
     // ========================================================================================

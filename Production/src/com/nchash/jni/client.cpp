@@ -261,6 +261,7 @@ using std::vector;
 
 // }
 
+#include <string>
 
 int main(int argc, char* argv[]) {
 
@@ -268,12 +269,21 @@ int main(int argc, char* argv[]) {
     // GENERATING RHO_SUMS
     // ========================================================================================
 
-    if (argc < 2) {
-        fprintf(stderr, "usage: %s <image_1> ... <image_n>\n", argv[0]);
-        exit(1);
-    }
+    // if (argc < 2) {
+    //     fprintf(stderr, "usage: %s <image_1> ... <image_n>\n", argv[0]);
+    //     exit(1);
+    // }
 
-    std::cout << client(argv[1]) << std::endl;
+    std::string image_path;
+    char const *txt_file = "../image_path.txt";
+    if (get_image_path(txt_file, image_path)) {
+        // std::cout << client(argv[1]) << std::endl;
+        const char* img_path = image_path.c_str();
+        // std::cout << "img_path = " << image_path << std:: endl;
+        std::cout << client(img_path) << std::endl;
+    } else {
+        std::cout << "File not found...\n";
+    }
 
     return 0;
 }
