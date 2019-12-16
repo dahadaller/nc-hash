@@ -204,9 +204,9 @@ public class MainController {
         String pathToFile = openFileExplorer();
         if(pathToFile != null){
 
-            CppHook cpp = new CppHook();
-
-            System.out.println(cpp.client_caller(pathToFile));
+//            CppHook cpp = new CppHook();
+//
+//            System.out.println(cpp.client_caller(pathToFile));
 
             if (!hashButton.isVisible()){
                 hashButton.setVisible(true);
@@ -346,7 +346,7 @@ public class MainController {
         // Offset is needed because the string will return with the words "file:" on front of it.
         int offset = 5;
         String imagePath = mainImage.getUrl().substring(offset);
-        BufferedWriter writer = new BufferedWriter(new FileWriter("src/com/nchash/image_path.txt"));
+        BufferedWriter writer = new BufferedWriter(new FileWriter("Production/src/com/nchash/image_path.txt"));
         writer.write(imagePath);
         writer.close();
     }
