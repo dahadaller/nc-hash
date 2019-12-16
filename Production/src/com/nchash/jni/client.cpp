@@ -260,6 +260,8 @@ using std::vector;
 //     return 0;
 
 // }
+#include <chrono>
+#include <thread>
 
 int main(int argc, char* argv[]) {
 
@@ -274,14 +276,24 @@ int main(int argc, char* argv[]) {
 
     std::string image_path;
     char const *txt_file = "../image_path.txt";
-    if (get_image_path(txt_file, image_path)) {
-        // std::cout << client(argv[1]) << std::endl;
-        const char* img_path = image_path.c_str();
-        // std::cout << "img_path = " << image_path << std:: endl;
-        std::cout << client(img_path) << std::endl;
-    } else {
-        std::cout << "File not found...\n";
+    while (!get_image_path(txt_file, image_path)) {
+        std::cout << "Sleeping...\n";
+        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
+    
+    const char* img_path = image_path.c_str();
+    // std::cout << "img_path = " << image_path << std:: endl;
+    std::cout << client(img_path) << std::endl;
+
+    // if (get_image_path(txt_file, image_path)) {
+    //     // std::cout << client(argv[1]) << std::endl;
+    //     const char* img_path = image_path.c_str();
+    //     // std::cout << "img_path = " << image_path << std:: endl;
+    //     std::cout << client(img_path) << std::endl;
+    // } else {
+    //     std::cout << "File not found...\n";
+    // }
 
     return 0;
 }

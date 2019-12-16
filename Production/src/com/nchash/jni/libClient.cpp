@@ -79,6 +79,7 @@ bool get_image_path(char const *txt_file, std::string &buffer) {
     }
     
     txtfile.close();
+    // std::remove(txt_file);
     return true;
     // std::cout << img_path << std::endl;
 }
