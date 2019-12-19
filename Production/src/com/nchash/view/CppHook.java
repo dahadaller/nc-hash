@@ -7,7 +7,7 @@ public class CppHook {
     //  so we can use use loadLibrary() instead of load()
     static {
         // TODO: place a hook to the C++ backend here, instead of test function in libTest.so
-        System.load(Paths.get("./src/com/nchash/jni/ClientWrapper.so").toAbsolutePath().normalize().toString());
+        System.load(Paths.get("./Production/src/com/nchash/jni/libClientWrapper.so").toAbsolutePath().normalize().toString());
    }
     public native void printMsg(String msg);
     public native String client_caller(String image_file_path);
