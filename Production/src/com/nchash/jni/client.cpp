@@ -269,22 +269,25 @@ int main(int argc, char* argv[]) {
     // GENERATING RHO_SUMS
     // ========================================================================================
 
-    // if (argc < 2) {
-    //     fprintf(stderr, "usage: %s <image_1> ... <image_n>\n", argv[0]);
-    //     exit(1);
-    // }
+    if (argc < 2) {
+        fprintf(stderr, "usage: %s <image_1> ... <image_n>\n", argv[0]);
+        exit(1);
+    }
 
-    std::string image_path;
-    char const *txt_file = "../image_path.txt";
-    while (!get_image_path(txt_file, image_path)) {
-        std::cout << "Sleeping...\n";
-        // std::this_thread::sleep_for(std::chrono::milliseconds(1));
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+    // std::string image_path;
+    // char const *txt_file = "../image_path.txt";
+    // while (!get_image_path(txt_file, image_path)) {
+    //     std::cout << "Sleeping...\n";
+    //     // std::this_thread::sleep_for(std::chrono::milliseconds(1));
+    //     std::this_thread::sleep_for(std::chrono::seconds(1));
+    // }
+    
+    // const char* img_path = image_path.c_str();
+    // std::cout << "img_path = " << image_path << std:: endl;
+    for (int i = 1; i < argc; ++i) {
+        std::cout << client(argv[i]) << std::endl;
     }
     
-    const char* img_path = image_path.c_str();
-    // std::cout << "img_path = " << image_path << std:: endl;
-    std::cout << client(img_path) << std::endl;
 
     // if (get_image_path(txt_file, image_path)) {
     //     // std::cout << client(argv[1]) << std::endl;
